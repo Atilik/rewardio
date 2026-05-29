@@ -1,0 +1,3 @@
+patient_id,session_start_time,artist_name,album_name,track_name,total_track_duration,start_position_seconds,start_date,end_date,track_listening_duration,total_track_listening_duration,end_reason,device_name
+PS01,18h-07m,Moderat,II,Gita,4:22.529,3:37.430,18:08 - 01/28/2026,18:08 - 01/28/2026,0:08.690,0:08.690,skipped,Ati’s MacBook Pro
+PS01,18h-07m,Moderat,II,Clouded - Interlude,1:33.359,0:02.189,18:08 - 01/28/2026,18:08 - 01/28/2026,0:17.637,0:17.637,paused_and_closed,Ati’s MacBook Pro

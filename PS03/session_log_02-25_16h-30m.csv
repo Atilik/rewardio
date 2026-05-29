@@ -1,0 +1,14 @@
+patient_id,session_start_time,artist_name,album_name,track_name,total_track_duration,start_position_seconds,start_date,end_date,track_listening_duration,total_track_listening_duration,end_reason,device_name
+PS03,16h-30m,Tame Impala,Currents,The Less I Know The Better,3:36.319,0:18.370,16:30 - 02/25/2026,16:30 - 02/25/2026,0:36.732,0:36.732,skipped,iPad
+PS03,16h-30m,Elton John,Cold Heart (PNAU Remix),Cold Heart - PNAU Remix,3:22.740,0:02.299,16:30 - 02/25/2026,16:34 - 02/25/2026,3:20.230,3:20.230,skipped,iPad
+PS03,16h-30m,Dua Lipa,Dance The Night (From Barbie The Album),Dance The Night - From Barbie The Album,2:56.580,0:00.330,16:34 - 02/25/2026,16:37 - 02/25/2026,2:58.600,2:58.600,track_end,iPad
+PS03,16h-30m,Elton John,Cold Heart (Claptone Remix),Cold Heart - Claptone Remix,3:03.810,0:02.040,16:37 - 02/25/2026,16:37 - 02/25/2026,0:23.819,0:23.819,skipped,iPad
+PS03,16h-30m,Miley Cyrus,Endless Summer Vacation,Flowers,3:20.599,0:01.780,16:37 - 02/25/2026,16:40 - 02/25/2026,3:21.209,3:21.209,track_end,iPad
+PS03,16h-30m,Elton John,The Lockdown Sessions,Hold Me Closer,3:22.250,0:02.549,16:40 - 02/25/2026,16:44 - 02/25/2026,3:19.057,3:19.057,skipped,iPad
+PS03,16h-30m,Dua Lipa,Dua Lipa (Deluxe),Be the One,3:22.909,0:00.670,16:44 - 02/25/2026,16:44 - 02/25/2026,0:17.210,0:17.210,skipped,iPad
+PS03,16h-30m,Elton John,Cold Heart (PS1 Remix),Cold Heart - PS1 Remix,2:46.669,0:00.810,16:44 - 02/25/2026,16:47 - 02/25/2026,2:45.183,2:45.183,skipped,iPad
+PS03,16h-30m,The Human League,Dare!,Don't You Want Me,3:56.919,0:00.270,16:47 - 02/25/2026,16:51 - 02/25/2026,3:58.541,3:58.541,track_end,iPad
+PS03,16h-30m,Nelly Furtado,"Whoa, Nelly! (Expanded Edition)",Turn Off The Light,4:36.069,0:01.000,16:51 - 02/25/2026,16:51 - 02/25/2026,0:04.294,0:04.294,skipped,iPad
+PS03,16h-30m,INXS,Kick,Need You Tonight,3:00.520,0:01.169,16:51 - 02/25/2026,16:51 - 02/25/2026,0:02.129,0:02.129,skipped,iPad
+PS03,16h-30m,Pet Shop Boys,PopArt: The Hits,Always on My Mind - 2003 Remaster,3:57.650,0:00.980,16:51 - 02/25/2026,16:51 - 02/25/2026,0:04.485,0:04.485,skipped,iPad
+PS03,16h-30m,Dua Lipa,Future Nostalgia,Levitating,3:23.810,0:01.570,16:51 - 02/25/2026,16:53 - 02/25/2026,1:56.993,1:56.993,paused_and_closed,iPad

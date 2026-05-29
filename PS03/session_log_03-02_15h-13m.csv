@@ -1,0 +1,6 @@
+patient_id,session_start_time,artist_name,album_name,track_name,total_track_duration,start_position_seconds,start_date,end_date,track_listening_duration,total_track_listening_duration,end_reason,device_name
+PS03,15h-13m,Edwin McCain,Misguided Roses,I'll Be,4:26.529,0:12.720,15:13 - 03/02/2026,15:18 - 03/02/2026,4:14.744,4:14.744,track_end,iPad
+PS03,15h-13m,Third Eye Blind,Third Eye Blind,How's It Going to Be,4:13.409,0:01.830,15:18 - 03/02/2026,15:22 - 03/02/2026,4:13.128,4:13.128,track_end,iPad
+PS03,15h-13m,Barenaked Ladies,Maroon,Pinch Me,4:45.160,0:01.330,15:22 - 03/02/2026,15:22 - 03/02/2026,0:18.567,0:18.567,skipped,iPad
+PS03,15h-13m,Hootie & The Blowfish,Cracked Rear View,Hold My Hand,4:18.329,0:01.770,15:22 - 03/02/2026,15:27 - 03/02/2026,4:17.416,4:17.416,track_end,iPad
+PS03,15h-13m,Collective Soul,Collective Soul,The World I Know,4:15.469,0:01.010,15:27 - 03/02/2026,15:28 - 03/02/2026,1:40.657,1:40.657,paused_and_closed,iPad

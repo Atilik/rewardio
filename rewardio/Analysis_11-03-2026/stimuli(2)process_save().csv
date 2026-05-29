@@ -1,0 +1,4 @@
+filename,duration,sr,n_channels,loudness_lufs,loudness_rms_db,rms,bpm,n_beats,n_onsets,syncopation_score,meter,genre,genre_confidence,danceability,danceability_confidence,voice_instrumental,mood_happy,mood_sad,mood_aggressive,mood_relaxed,pitch_median_hz,key,scale,key_strength,fluctuation,spectral_irregularity
+01_harry_styles_as_it_was.mp3,10.24,44100,2,-7.89,-12.7,0.151092,188,19,9,41,4,Rock---Indie Rock,0.164,danceable,0.66,instrumental,0.328,0.375,0.259,0.713,440.6,A,major,0.83,2061.9471,0.4093
+02_tame_impala_the_less_i_know_the_better.mp3,19.57,44100,2,-9.31,-11.77,0.210638,115,38,35,33,4,Funk / Soul---Funk,0.209,danceable,0.989,voice,0.685,0.108,0.247,0.157,140.1,C#,minor,0.891,3515.3743,0.4576
+=== AVERAGES ===,,,,-8.6,,0.180865,151.5,,,37.0,,,,,,,,,,,,,,,,

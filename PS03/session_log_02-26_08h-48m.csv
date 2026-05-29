@@ -1,0 +1,13 @@
+patient_id,session_start_time,artist_name,album_name,track_name,total_track_duration,start_position_seconds,start_date,end_date,track_listening_duration,total_track_listening_duration,end_reason,device_name
+PS03,08h-48m,Britney Spears,Blackout,Piece of Me,3:32.110,0:01.000,08:48 - 02/26/2026,08:48 - 02/26/2026,0:08.593,0:08.593,skipped,iPad
+PS03,08h-48m,Britney Spears,Oops!... I Did It Again,Lucky,3:26.229,0:00.000,08:48 - 02/26/2026,08:52 - 02/26/2026,3:39.840,3:39.840,skipped,iPad
+PS03,08h-48m,Britney Spears,...Baby One More Time (Digital Deluxe Version),...Baby One More Time,3:31.069,0:01.000,08:52 - 02/26/2026,08:52 - 02/26/2026,0:30.425,0:30.425,skipped,iPad
+PS03,08h-48m,Tracy Chapman,Tracy Chapman,Fast Car,4:56.800,0:01.149,08:52 - 02/26/2026,08:56 - 02/26/2026,3:49.690,3:49.690,skipped,iPad
+PS03,08h-48m,Elton John,Elton John,Your Song,4:01.789,0:00.640,08:56 - 02/26/2026,09:00 - 02/26/2026,3:58.182,3:58.182,skipped,iPad
+PS03,08h-48m,James Taylor,Gorilla (2019 Remaster),How Sweet It Is (To Be Loved By You) - 2019 Remaster,3:36.389,0:02.270,09:00 - 02/26/2026,09:01 - 02/26/2026,0:24.101,0:24.101,skipped,iPad
+PS03,08h-48m,Dave Matthews Band,Everyday,The Space Between,4:02.000,0:00.200,09:01 - 02/26/2026,09:01 - 02/26/2026,0:02.216,0:02.216,skipped,iPad
+PS03,08h-48m,James Taylor,Gorilla (2019 Remaster),How Sweet It Is (To Be Loved By You) - 2019 Remaster,3:36.389,0:00.500,09:01 - 02/26/2026,09:04 - 02/26/2026,3:25.217,3:49.318,skipped,iPad
+PS03,08h-48m,Hootie & The Blowfish,Cracked Rear View,Only Wanna Be With You,3:49.590,0:00.770,09:04 - 02/26/2026,09:08 - 02/26/2026,3:42.483,3:42.483,skipped,iPad
+PS03,08h-48m,Dave Matthews Band,Under the Table and Dreaming (Expanded Edition),Ants Marching,4:31.189,0:00.350,09:08 - 02/26/2026,09:08 - 02/26/2026,0:04.351,0:04.351,skipped,iPad
+PS03,08h-48m,Fleetwood Mac,Fleetwood Mac,Landslide,3:19.490,0:01.629,09:08 - 02/26/2026,09:11 - 02/26/2026,3:18.294,3:18.294,track_end,iPad
+PS03,08h-48m,James Taylor,Mud Slide Slim and the Blue Horizon (2019 Remaster),You've Got a Friend - 2019 Remaster,4:28.870,0:01.030,09:11 - 02/26/2026,09:13 - 02/26/2026,2:06.321,2:06.321,paused_and_closed,iPad

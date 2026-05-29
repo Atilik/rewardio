@@ -1,0 +1,4 @@
+patient_id,session_start_time,artist_name,album_name,track_name,total_track_duration,start_position_seconds,start_date,end_date,track_listening_duration,total_track_listening_duration,end_reason,device_name
+PS01,14h-42m,Korn,Follow The Leader,It's On!,4:29.569,0:01.639,14:42 - 11/14/2025,14:44 - 11/14/2025,1:54.926,1:54.926,skipped,Ati’s MacBook Pro
+PS01,14h-42m,Korn,Follow The Leader,Freak On a Leash,4:15.729,0:01.560,14:44 - 11/14/2025,14:44 - 11/14/2025,0:04.380,0:04.380,skipped,Ati’s MacBook Pro
+PS01,14h-42m,F. Scott Fitzgerald,The Great Gatsby,The Great Gatsby - Chapter 04,34:19.239,0:00.000,14:44 - 11/14/2025,14:48 - 11/14/2025,3:15.771,3:15.771,paused_and_closed,Ati’s MacBook Pro

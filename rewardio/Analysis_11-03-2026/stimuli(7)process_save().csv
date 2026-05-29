@@ -1,0 +1,7 @@
+filename,duration,sr,n_channels,loudness_lufs,loudness_rms_db,rms,bpm,n_beats,n_onsets,syncopation_score,meter,genre,genre_confidence,danceability,danceability_confidence,voice_instrumental,mood_happy,mood_sad,mood_aggressive,mood_relaxed,pitch_median_hz,key,scale,key_strength,fluctuation,spectral_irregularity
+01_edwin_mccain_ill_be.mp3,253.75,44100,2,-7.99,-11.06,0.2488,136,597,259,39,4,Rock---Alternative Rock,0.171,not_danceable,0.953,voice,0.392,0.306,0.062,0.435,246.3,B,major,0.968,7898.8594,0.4406
+02_third_eye_blind_hows_it_going_to_be.mp3,254.49,44100,2,-17.62,-20.23,0.083546,81,313,381,46,4,Rock---Alternative Rock,0.429,not_danceable,0.794,voice,0.337,0.453,0.219,0.48,177.6,F,major,0.932,6895.8488,0.433
+03_barenaked_ladies_pinch_me.mp3,18.57,44100,2,-9.67,-11.47,0.239008,97,29,61,58,4,Electronic---Trip Hop,0.251,danceable,0.919,instrumental,0.562,0.212,0.043,0.491,123.5,C,major,0.908,3934.8182,0.4315
+04_hootie_the_blowfish_hold_my_hand.mp3,255.56,44100,2,-9.23,-12.42,0.204337,86,382,389,49,4,Rock---Hard Rock,0.204,not_danceable,0.942,voice,0.418,0.246,0.039,0.403,236.6,E,major,0.843,7505.1918,0.4105
+05_collective_soul_the_world_i_know.mp3,100.68,44100,2,-19.99,-22.41,0.065944,77,128,145,48,4,Rock---Alternative Rock,0.264,not_danceable,0.963,voice,0.161,0.13,0.008,0.713,218.9,G,major,0.839,4812.4063,0.4325
+=== AVERAGES ===,,,,-12.9,,0.168327,95.4,,,48.0,,,,,,,,,,,,,,,,
