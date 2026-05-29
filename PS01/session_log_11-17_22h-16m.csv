@@ -1,6 +1,0 @@
-patient_id,session_start_time,artist_name,album_name,track_name,total_track_duration,start_position_seconds,start_date,end_date,track_listening_duration,total_track_listening_duration,end_reason,device_name
-PS01,22h-16m,Deftones,White Pony,Change (In the House of Flies),4:59.529,0:35.950,22:16 - 11/17/2025,22:16 - 11/17/2025,0:06.364,0:06.364,skipped,iPhone
-PS01,22h-16m,Pink Floyd,Wish You Were Here,Welcome to the Machine,7:30.709,0:00.690,22:16 - 11/17/2025,22:17 - 11/17/2025,0:42.975,0:42.975,seeked_forward,iPhone
-PS01,22h-16m,Pink Floyd,Wish You Were Here,Welcome to the Machine,7:30.709,2:12.930,22:17 - 11/17/2025,22:17 - 11/17/2025,0:04.349,0:47.324,skipped,iPhone
-PS01,22h-16m,Moderat,II,Therapy,5:45.240,0:02.200,22:17 - 11/17/2025,22:17 - 11/17/2025,0:10.793,0:10.793,skipped,iPhone
-PS01,22h-16m,Caribou,Suddenly,Never Come Back,5:05.480,0:00.940,22:17 - 11/17/2025,22:19 - 11/17/2025,1:54.143,1:54.143,spotify_closed,iPhone

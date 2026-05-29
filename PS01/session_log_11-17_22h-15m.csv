@@ -1,3 +1,0 @@
-patient_id,session_start_time,artist_name,album_name,track_name,total_track_duration,start_position_seconds,start_date,end_date,track_listening_duration,total_track_listening_duration,end_reason,device_name
-PS01,22h-15m,Deftones,Around the Fur,My Own Summer (Shove It),3:34.759,0:01.760,22:15 - 11/17/2025,22:15 - 11/17/2025,0:36.545,0:36.545,skipped,iPhone
-PS01,22h-15m,Deftones,White Pony,Change (In the House of Flies),4:59.529,0:00.670,22:15 - 11/17/2025,22:16 - 11/17/2025,0:28.921,0:28.921,spotify_closed,iPhone

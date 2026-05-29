@@ -1,7 +1,0 @@
-patient_id,session_start_time,artist_name,album_name,track_name,total_track_duration,start_position_seconds,start_date,end_date,track_listening_duration,total_track_listening_duration,end_reason,device_name
-PS02,09h-34m,Traditional,Gurdev Singh: Art of the Indian Sarod,Raag Bhairavi,9:13.649,0:01.179,09:34 - 02/25/2026,09:43 - 02/25/2026,9:15.900,9:15.900,track_end,Mobile Web Player
-PS02,09h-34m,Hariprasad Chaurasia,The Raga Guide,Jogiya,3:59.490,0:00.230,09:43 - 02/25/2026,09:47 - 02/25/2026,4:00.342,4:00.342,track_end,Mobile Web Player
-PS02,09h-34m,Nadiyon,Raga Jog,Raga Jog,4:59.970,0:00.380,09:47 - 02/25/2026,09:53 - 02/25/2026,5:00.922,5:00.922,track_end,Mobile Web Player
-PS02,09h-34m,Rakesh Chaurasia,Call of the Divine - Magical Flute of Rakesh Chaurasia,Raag Bhairavi - Dhun,7:38.569,0:00.620,09:53 - 02/25/2026,10:00 - 02/25/2026,7:39.952,7:39.952,track_end,Mobile Web Player
-PS02,09h-34m,Shaant Man,Raga Bageshri,Raga Bhairavi,4:29.540,0:00.790,10:00 - 02/25/2026,10:05 - 02/25/2026,4:30.257,4:30.257,track_end,Mobile Web Player
-PS02,09h-34m,L. Subramaniam,Duet,Raga Sindhi Bhairavi: Dadra Tal,11:51.929,0:00.760,10:05 - 02/25/2026,10:07 - 02/25/2026,2:17.835,2:17.835,spotify_closed,Mobile Web Player

@@ -1,7 +1,0 @@
-patient_id,session_start_time,artist_name,album_name,track_name,total_track_duration,start_position_seconds,start_date,end_date,track_listening_duration,total_track_listening_duration,end_reason,device_name
-PS03,09h-47m,Rush,Snakes & Arrows Live,Natural Science - Snakes & Arrows Live Version,8:34.210,8:33.110,09:47 - 03/03/2026,09:47 - 03/03/2026,0:02.142,0:02.142,track_end,iPad
-PS03,09h-47m,Céline Dion,Céline... Une seule fois / Live 2013,"My Heart Will Go On (Live in Quebec City) - Live from Quebec City, Canada - July 2013",6:41.839,0:02.819,09:47 - 03/03/2026,09:53 - 03/03/2026,6:41.259,6:41.259,track_end,iPad
-PS03,09h-47m,Melbourne Ska Orchestra,Melbourne Ska Orchestra,Third Time Lucky,3:32.069,0:01.740,09:53 - 03/03/2026,09:57 - 03/03/2026,3:31.079,3:31.079,track_end,iPad
-PS03,09h-47m,Rush,Rush in Rio (Live),Natural Science - Rio Live,8:34.509,0:00.210,09:57 - 03/03/2026,10:05 - 03/03/2026,8:36.766,8:36.766,track_end,iPad
-PS03,09h-47m,Too Many Zooz,Subway Gawdz,Warriors,3:31.039,0:01.940,10:05 - 03/03/2026,10:09 - 03/03/2026,3:30.328,3:30.328,track_end,iPad
-PS03,09h-47m,Rush,Permanent Waves,Natural Science,9:19.889,0:00.740,10:09 - 03/03/2026,10:18 - 03/03/2026,8:36.923,8:36.923,paused_and_closed,iPad

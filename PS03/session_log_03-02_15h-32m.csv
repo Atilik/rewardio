@@ -1,8 +1,0 @@
-patient_id,session_start_time,artist_name,album_name,track_name,total_track_duration,start_position_seconds,start_date,end_date,track_listening_duration,total_track_listening_duration,end_reason,device_name
-PS03,15h-32m,Collective Soul,Collective Soul,The World I Know,4:15.469,1:42.469,15:32 - 03/02/2026,15:34 - 03/02/2026,1:25.136,1:25.136,seeked_backward,iPad
-PS03,15h-32m,Collective Soul,Collective Soul,The World I Know,4:15.469,0:01.120,15:34 - 03/02/2026,15:34 - 03/02/2026,0:08.982,1:34.118,skipped,iPad
-PS03,15h-32m,Hootie & The Blowfish,Cracked Rear View,Hold My Hand,4:18.329,0:02.270,15:34 - 03/02/2026,15:38 - 03/02/2026,4:17.555,4:17.555,track_end,iPad
-PS03,15h-32m,Collective Soul,Collective Soul,The World I Know,4:15.469,0:02.439,15:38 - 03/02/2026,15:38 - 03/02/2026,0:04.372,1:38.491,skipped,iPad
-PS03,15h-32m,Edwin McCain,Messenger,I Could Not Ask for More,4:33.569,0:00.910,15:38 - 03/02/2026,15:42 - 03/02/2026,4:27.062,4:27.062,skipped,iPad
-PS03,15h-32m,The Goo Goo Dolls,A Boy Named Goo,Name,4:30.000,0:01.720,15:42 - 03/02/2026,15:46 - 03/02/2026,3:47.448,3:47.448,seeked_backward,iPad
-PS03,15h-32m,The Goo Goo Dolls,A Boy Named Goo,Name,4:30.000,0:01.760,15:46 - 03/02/2026,15:46 - 03/02/2026,0:00.000,3:47.448,long_pause,iPad
