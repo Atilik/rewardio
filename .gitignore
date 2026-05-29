@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Jupyter
+.ipynb_checkpoints/
+
+# macOS
+.DS_Store
+
+# Audio data (large files)
+audio_test_data/
+downloaded_session_music/
+
+# Models (large files)
+scripts/models/
+
+# Analysis output
+scripts/Analysis_*/
+
+# Sensitive
+youtube_cookies.txt
