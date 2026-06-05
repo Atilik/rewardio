@@ -13,11 +13,8 @@ __pycache__/
 audio_test_data/
 downloaded_session_music/
 
-# Models (large files)
-scripts/models/
-
 # Analysis output
-scripts/Analysis_*/
+rewardio/Analysis_*/
 
 # Sensitive
 youtube_cookies.txt

@@ -1,8 +1,8 @@
 name: rewardio
 channels:
+  - pytorch
+  - conda-forge
   - defaults
-  - https://repo.anaconda.com/pkgs/main
-  - https://repo.anaconda.com/pkgs/r
 dependencies:
   - python=3.9
   - ipykernel
@@ -17,3 +17,8 @@ dependencies:
   - pytorch
   - torchaudio
   - torchvision
+  - pip:
+    - sounddevice
+    - pyloudnorm
+    - demucs
+    - essentia-tensorflow
