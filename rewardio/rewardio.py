@@ -17,14 +17,6 @@ from genre import (classify_genre as _classify_genre,
                    detect_pitch_crepe as _detect_pitch_crepe,
                    detect_key as _detect_key)
 
-
-# ──────────────────────────────────────────────
-#  Helpers moved from evas_eval.py -> rhythm.py
-# ──────────────────────────────────────────────
-# (Removed local implementation)
-
-
-
 # ──────────────────────────────────────────────
 #  Stimulus class
 # ──────────────────────────────────────────────
