@@ -16,7 +16,6 @@ dependencies:
   - mir_eval
   - pytorch
   - torchaudio
-  - torchvision
   - pip:
     - sounddevice
     - pyloudnorm

@@ -14,6 +14,26 @@ A simple, interactive command-line Python tool for music information retrieval (
 
 ---
 
+## 🛠️ How to Setup Rewardio
+
+```bash
+# 1. Clone the repo
+git clone git@github.com:Atilik/rewardio.git
+cd rewardio
+
+# 2. Create the conda environment (installs everything)
+conda env create -f environment.yml
+
+# 3. Activate it
+conda activate rewardio
+
+# 4. Run rewardio
+cd rewardio
+python rewardio.py /path/to/audio/
+```
+
+---
+
 ## 🚀 Getting Started
 
 Open the terminal from your macos.
@@ -21,7 +41,7 @@ Open the terminal from your macos.
 Launch the tool by passing the path to an audio file, a session folder, or a patient folder.
 
 ```bash
-cd scripts/
+cd rewardio/
 # Load a single song:
 python rewardio.py /path/to/song.wav
 
