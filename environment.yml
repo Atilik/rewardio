@@ -1,0 +1,20 @@
+name: mir_toolbox
+channels:
+  - defaults
+  - https://repo.anaconda.com/pkgs/main
+  - https://repo.anaconda.com/pkgs/r
+dependencies:
+  - python=3.9
+  - ipykernel
+  - numpy=1.26
+  - librosa
+  - matplotlib
+  - scipy
+  - ffmpeg
+  - libsndfile
+  - cython
+  - mir_eval
+  - pytorch
+  - torchaudio
+  - torchvision
+prefix: /Users/atlyk/miniconda3/envs/mir_toolbox
