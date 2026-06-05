@@ -1,4 +1,4 @@
-name: mir_toolbox
+name: rewardio
 channels:
   - defaults
   - https://repo.anaconda.com/pkgs/main
@@ -17,4 +17,3 @@ dependencies:
   - pytorch
   - torchaudio
   - torchvision
-prefix: /Users/atlyk/miniconda3/envs/mir_toolbox
