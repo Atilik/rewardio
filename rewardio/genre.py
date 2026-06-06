@@ -156,9 +156,6 @@ def classify_genre(audio_file_path, top_n=5):
     """Genre classification (400 Discogs sub-genres)."""
     return _classify("genre", audio_file_path, top_n=top_n)
 
-
-
-
 def classify_voice_instrumental(audio_file_path):
     """Voice vs instrumental classification."""
     return _classify("voice_instrumental", audio_file_path, top_n=2)
