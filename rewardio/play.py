@@ -451,7 +451,7 @@ def play_interactive(stimulus, xlim=None, ylim=None):
         if stimulus._pitch_freq is None:
             status_var.set("Running CREPE pitch detection...")
             win.update_idletasks()
-            from genre import detect_pitch_crepe
+            from .genre import detect_pitch_crepe
             stimulus._pitch_time, stimulus._pitch_freq, stimulus._pitch_conf = detect_pitch_crepe(
                 stimulus.audio_file_path
             )

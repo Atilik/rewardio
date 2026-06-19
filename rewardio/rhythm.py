@@ -5,7 +5,7 @@ from IPython.display import Audio, display
 import matplotlib.pyplot as plt
 
 from scipy import signal
-from dsp import normalize
+from .dsp import normalize
 
 # ──────────────────────────────────────────────
 #  BEAT THIS! singleton (lazy-loaded)

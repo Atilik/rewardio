@@ -4,13 +4,13 @@ os.environ["ABSL_MIN_LOG_LEVEL"] = "3"
 import numpy as np
 import librosa
 
-from plot import plot_beats as _plot_beats, plot_waveform as _plot_waveform, plot_beats_and_onsets as _plot_beats_and_onsets, plot_interactive as _plot_interactive, plot_session_boxplots as _plot_session_boxplots, plot_spectrogram as _plot_spectrogram
-from rhythm import detect_beats, get_bpm, onset_detection, syncopation_score
-from core import load_audio, write_to_csv, stimulus_help as _stimulus_help, stimulus_print as _stimulus_print, stimulus_print_all as _stimulus_print_all, session_help as _session_help, session_print as _session_print, patient_help as _patient_help, patient_print as _patient_print, clear
-from dsp import normalize, get_loudness, get_rms, compute_fluctuation as _compute_fluctuation, spectral_irregularity as _spectral_irregularity, compute_spectral_features as _compute_spectral_features
-from play import play_audio, play_interactive as _play_interactive, sonify_beats as _sonify_beats, sonify_beats_and_onsets as _sonify_beats_and_onsets
-from separate import separate
-from genre import (classify_genre as _classify_genre,
+from .plot import plot_beats as _plot_beats, plot_waveform as _plot_waveform, plot_beats_and_onsets as _plot_beats_and_onsets, plot_interactive as _plot_interactive, plot_session_boxplots as _plot_session_boxplots, plot_spectrogram as _plot_spectrogram
+from .rhythm import detect_beats, get_bpm, onset_detection, syncopation_score
+from .core import load_audio, write_to_csv, stimulus_help as _stimulus_help, stimulus_print as _stimulus_print, stimulus_print_all as _stimulus_print_all, session_help as _session_help, session_print as _session_print, patient_help as _patient_help, patient_print as _patient_print, clear
+from .dsp import normalize, get_loudness, get_rms, compute_fluctuation as _compute_fluctuation, spectral_irregularity as _spectral_irregularity, compute_spectral_features as _compute_spectral_features
+from .play import play_audio, play_interactive as _play_interactive, sonify_beats as _sonify_beats, sonify_beats_and_onsets as _sonify_beats_and_onsets
+from .separate import separate
+from .genre import (classify_genre as _classify_genre,
                    classify_voice_instrumental as _classify_voice_instrumental,
                    classify_mood as _classify_mood,
                    classify_all as _classify_all,
@@ -85,8 +85,8 @@ class Stimulus:
     # ── Audio Properties ──────────────────────────
     def _load_audio_if_needed(self):
         if self._y is None:
-            self._y, getattr(self, 'sr', 44100)
-            self._y, self.sr = load_audio(self.audio_file_path, sr=self.sr)
+            sr = getattr(self, 'sr', 44100)
+            self._y, self.sr = load_audio(self.audio_file_path, sr=sr)
             if self._y.ndim == 1:
                 self._n_channels = 1
                 self._duration = len(self._y) / self.sr
@@ -257,7 +257,7 @@ class Stimulus:
 
             # Low-pass filter (same as syncopation_score pipeline)
             from scipy import signal as sp_signal
-            from dsp import normalize as _normalize
+            from .dsp import normalize as _normalize
             nyquist = 0.5 * self.sr
             cutoff_hz = 1500
             b_low, a_low = sp_signal.butter(4, cutoff_hz / nyquist, btype="low")

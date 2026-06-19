@@ -87,32 +87,30 @@ def filter_low_pass(y, cutoff_freq, sr=44100, hop_length=512):
     nyquist = 0.5 * sr
     
     # Butterworth
-    cutoff_hz = cutoff_freq
-    low_cutoff_norm = low_pass_cutoff_hz / nyquist
+    low_cutoff_norm = cutoff_freq / nyquist
     b_low, a_low = signal.butter(4, low_cutoff_norm, btype="low")
     
     # APPLY FILTERS (zero-phase!)
     # filtfilt = no phase shift → onsets stay in the right place
-    drums_low_pass  = signal.filtfilt(b_low,  a_low,  drums)
-    
-    print(f"Created filters: Low-pass {low_pass_cutoff_hz} Hz ")
+    y_low_pass = signal.filtfilt(b_low, a_low, y)
     
     # Normalize
-    drums_low_pass = librosa.util.normalize(drums_low_pass)
+    y_low_pass = librosa.util.normalize(y_low_pass)
     
-    # listen to filtered stems (optional)
-    print("Filtered Target")
-    display(Audio(drums_low_pass, rate=sr))
+    return y_low_pass
 
 def filter_high_pass(y, cutoff_freq, sr=44100, hop_length=512):
     nyquist = 0.5 * sr
-
-    return
+    high_cutoff_norm = cutoff_freq / nyquist
+    b_high, a_high = signal.butter(4, high_cutoff_norm, btype="high")
+    
+    y_high_pass = signal.filtfilt(b_high, a_high, y)
+    y_high_pass = librosa.util.normalize(y_high_pass)
+    
+    return y_high_pass
 
 def filter_bell(y, cutoff_freq, sr=44100, hop_length=512):
-    nyquist = 0.5 * sr
-
-    return
+    raise NotImplementedError("filter_bell is not yet implemented.")
 
 
 # ──────────────────────────────────────────────

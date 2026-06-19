@@ -8,7 +8,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
-from play import _show_figure, _get_tk_root
+from .play import _show_figure, _get_tk_root
 
 
 def plot_beats(stimulus, xlim=None, ylim=None):
