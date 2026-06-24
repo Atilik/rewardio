@@ -32,8 +32,8 @@ _CREPE_PATH = os.path.join(_MODELS_DIR, "crepe-medium-1.pb")
 
 # ── Lazy caches ───────────────────────────────
 _embedding_model = None
-_head_models = {}          # name -> TensorflowPredict2D
-_head_classes = {}         # name -> list of class labels
+_head_models = {}          
+_head_classes = {}         
 _crepe_model = None
 _essentia_silenced = False
 
