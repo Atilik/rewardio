@@ -1,15 +1,16 @@
 import librosa
 import mir_eval
 import numpy as np
+import torch
+from madmom.features.downbeats import RNNDownBeatProcessor, DBNDownBeatTrackingProcessor
 from IPython.display import Audio, display
 import matplotlib.pyplot as plt
 
 from scipy import signal
 from .dsp import normalize
+from beat_this.inference import Audio2Beats
 
-# ──────────────────────────────────────────────
-#  BEAT THIS! singleton (lazy-loaded)
-# ──────────────────────────────────────────────
+# BEAT THIS! singleton (lazy-loaded)
 _beat_this_model = None
 
 def _get_beat_this_model():
@@ -17,15 +18,13 @@ def _get_beat_this_model():
     global _beat_this_model
     if _beat_this_model is None:
         import torch
-        from beat_this.inference import Audio2Beats
+        
         device = "cuda" if torch.cuda.is_available() else "cpu"
         _beat_this_model = Audio2Beats(checkpoint_path="final0", device=device, dbn=False)
     return _beat_this_model
 
 
-# ──────────────────────────────────────────────
-#  Helpers moved from evas_eval.py
-# ──────────────────────────────────────────────
+# Helpers moved from evas_eval.py
 
 METER_WEIGHTS = {
     4: np.array([5, 1, 2, 1, 3, 1, 2, 1, 4, 1, 2, 1, 3, 1, 2, 1], dtype=int),
@@ -258,9 +257,7 @@ def syncopation_score(beat_times, separated_drums, sr=44100, beats_per_bar=4, on
     return score, onset_times
 
 
-# ──────────────────────────────────────────────
-#  Beat detection  (BEAT THIS! default, madmom fallback)
-# ──────────────────────────────────────────────
+# Beat detection  (BEAT THIS! default, madmom fallback)
 
 def _derive_positions_and_meter(beat_times, downbeat_times):
     """
@@ -349,7 +346,6 @@ def detect_beats(y, sr, hop_length=512, use_madmom=False):
 
 def _detect_beats_beat_this(y, sr, hop_length=512):
     """Beat detection using BEAT THIS! (ISMIR 2024)."""
-    import torch
 
     model = _get_beat_this_model()
 
@@ -373,7 +369,6 @@ def _detect_beats_beat_this(y, sr, hop_length=512):
 
 def _detect_beats_madmom(y, sr, hop_length=512):
     """Beat + downbeat detection using madmom (legacy)."""
-    from madmom.features.downbeats import RNNDownBeatProcessor, DBNDownBeatTrackingProcessor
 
     # Create processor objects — allow detection of 4/4
     rnn_proc = RNNDownBeatProcessor()

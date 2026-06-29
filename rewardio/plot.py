@@ -117,7 +117,7 @@ def plot_interactive(stimulus, xlim=None, ylim=None):
         "onset_lines": None,
     }
 
-    # ── Tkinter window ────────────────────
+    # Tkinter window
     root = _get_tk_root()
     win = tk.Toplevel(root)
     win.title(f"Plot — {stimulus.audio_file_name}")
@@ -139,7 +139,7 @@ def plot_interactive(stimulus, xlim=None, ylim=None):
     except Exception:
         pass
 
-    # ── Matplotlib figure ─────────────────
+    # Matplotlib figure
     fig, ax = plt.subplots(figsize=(12, 4), dpi=100)
     fig.patch.set_facecolor(BG)
     ax.set_facecolor(SURFACE)
@@ -210,18 +210,18 @@ def plot_interactive(stimulus, xlim=None, ylim=None):
                   facecolor=SURFACE, edgecolor=BORDER,
                   labelcolor=FG)
 
-    # ── Embed figure ──────────────────────
+    # Embed figure
     canvas = FigureCanvasTkAgg(fig, master=win)
     canvas.draw()
     canvas.get_tk_widget().pack(fill="both", expand=True, padx=8, pady=(8, 0))
 
-    # ── Status label ──────────────────────
+    # Status label
     status_var = tk.StringVar(value="")
     status_label = tk.Label(win, textvariable=status_var,
                             font=("Menlo", 10), fg="#a6adc8", bg=BG)
     status_label.pack(pady=(4, 0))
 
-    # ── Toggle buttons ────────────────────
+    # Toggle buttons
     btn_frame = tk.Frame(win, bg=BG)
     btn_frame.pack(pady=(4, 12))
 
@@ -282,7 +282,7 @@ def plot_interactive(stimulus, xlim=None, ylim=None):
 
     _update_btn_colors()
 
-    # ── Close ─────────────────────────────
+    # Close
     win.protocol("WM_DELETE_WINDOW", lambda: (plt.close(fig), win.destroy()))
     win.wait_window()
 
@@ -362,12 +362,12 @@ def plot_spectrogram(stimulus, xlim=None, ylim=None, scale='mel'):
     sr = stimulus.sr
     duration = len(y_mono) / sr
 
-    # ── Colors (Catppuccin Mocha) ─────────
+    # Colors (Catppuccin Mocha)
     BG      = "#1e1e2e"
     FG      = "#cdd6f4"
     BORDER  = "#45475a"
 
-    # ── Compute spectrogram ───────────────
+    # Compute spectrogram
     if scale == 'mel':
         S = librosa.feature.melspectrogram(y=y_mono, sr=sr, n_mels=128, fmax=sr // 2)
         S_dB = librosa.power_to_db(S, ref=np.max)
@@ -380,7 +380,7 @@ def plot_spectrogram(stimulus, xlim=None, ylim=None, scale='mel'):
         y_axis = 'log' if scale == 'log' else 'hz'
         title_scale = 'Log' if scale == 'log' else 'Linear'
 
-    # ── Tkinter window ────────────────────
+    # Tkinter window
     root = _get_tk_root()
     win = tk.Toplevel(root)
     win.title(f"Spectrogram ({title_scale}) — {stimulus.audio_file_name}")
