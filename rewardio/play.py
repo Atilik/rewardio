@@ -4,16 +4,16 @@ import tkinter as tk
 import numpy as np
 import mir_eval
 import sounddevice as sd
+import subprocess
 
 import matplotlib
 matplotlib.use('Agg')  # Non-interactive backend — prevents Tk conflicts
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.figure import Figure
 
 
-# ──────────────────────────────────────────────
-#  Shared tkinter root (singleton)
-# ──────────────────────────────────────────────
+# Shared tkinter root (singleton)
 
 _tk_root = None
 
@@ -61,8 +61,6 @@ def play_audio(y, sr, title="Audio Player", beat_times=None, onset_times=None, s
     Open a GUI player with matplotlib waveform, moving cursor, and controls.
     Uses FigureCanvasTkAgg + sounddevice for playback.
     """
-    from matplotlib.figure import Figure
-
     # Prepare audio for sounddevice: (n_samples,) or (n_samples, n_channels)
     if y.ndim == 2:
         y_mono = np.mean(y, axis=0)
@@ -75,7 +73,7 @@ def play_audio(y, sr, title="Audio Player", beat_times=None, onset_times=None, s
     duration = total_samples / sr
     times = np.linspace(start_time, start_time + duration, len(y_mono))
 
-    # ── Playback state ────────────────────
+    # Playback state
     state = {
         "playing": False,
         "paused": False,
@@ -92,11 +90,11 @@ def play_audio(y, sr, title="Audio Player", beat_times=None, onset_times=None, s
             return min(pos, total_samples)
         return state["start_sample"]
 
-    # ── Colors ────────────────────────────
+    # Colors
     BG = "#1e1e2e"
     FG = "#cdd6f4"
 
-    # ── Tkinter window ────────────────────
+    # Tkinter window
     root = _get_tk_root()
     win = tk.Toplevel(root)
     win.title(title)
@@ -108,7 +106,6 @@ def play_audio(y, sr, title="Audio Player", beat_times=None, onset_times=None, s
     win.attributes("-topmost", True)
     win.after(100, lambda: win.attributes("-topmost", False))
     try:
-        import subprocess
         subprocess.Popen([
             "osascript", "-e",
             'tell application "System Events" to set frontmost of '
@@ -118,7 +115,7 @@ def play_audio(y, sr, title="Audio Player", beat_times=None, onset_times=None, s
     except Exception:
         pass
 
-    # ── Matplotlib waveform ───────────────
+    # Matplotlib waveform
     fig = Figure(figsize=(12, 3.5), dpi=100, facecolor=BG)
     ax = fig.add_subplot(111)
     ax.set_facecolor("#181825")
@@ -161,7 +158,7 @@ def play_audio(y, sr, title="Audio Player", beat_times=None, onset_times=None, s
     # Save static background for blitting
     bg_snapshot = canvas_widget.copy_from_bbox(ax.bbox)
 
-    # ── Click on waveform to seek ─────────
+    # Click on waveform to seek
     def _on_click(event):
         if event.inaxes == ax:
             click_time = event.xdata
@@ -177,12 +174,12 @@ def play_audio(y, sr, title="Audio Player", beat_times=None, onset_times=None, s
 
     fig.canvas.mpl_connect("button_press_event", _on_click)
 
-    # ── Time label ────────────────────────
+    # Time label
     time_var = tk.StringVar(value=f"{_format_time(0)} / {_format_time(duration)}")
     tk.Label(win, textvariable=time_var, font=("Menlo", 14),
              fg=FG, bg=BG).pack(pady=(6, 2))
 
-    # ── Buttons ───────────────────────────
+    # Buttons
     btn_frame = tk.Frame(win, bg=BG)
     btn_frame.pack(pady=(2, 12))
 
@@ -282,7 +279,7 @@ def play_interactive(stimulus, xlim=None, ylim=None):
     y = stimulus.y
     sr = stimulus.sr
 
-    # ── Handle xlim slicing ───────────────
+    # Handle xlim slicing
     start_time = 0.0
     if xlim is not None:
         start_time = float(xlim[0])
@@ -306,7 +303,7 @@ def play_interactive(stimulus, xlim=None, ylim=None):
     duration = total_samples / sr
     times = np.linspace(start_time, start_time + duration, len(y_mono))
 
-    # ── Colors (Catppuccin Mocha) ─────────
+    # Colors (Catppuccin Mocha)
     BG       = "#1e1e2e"
     SURFACE  = "#181825"
     FG       = "#cdd6f4"
@@ -318,7 +315,7 @@ def play_interactive(stimulus, xlim=None, ylim=None):
     BTN_OFF  = "#45475a"
     VIEW_ON  = "#cba6f7"  # purple for active view mode
 
-    # ── Click tracks (built lazily) ───────
+    # Click tracks (built lazily)
     tracks = {
         "beat_track": None,    # mono click track for beats
         "onset_track": None,   # mono ping track for onsets
@@ -394,7 +391,7 @@ def play_interactive(stimulus, xlim=None, ylim=None):
             return min(pos, total_samples)
         return state["start_sample"]
 
-    # ── Tkinter window ────────────────────
+    # Tkinter window
     root = _get_tk_root()
     win = tk.Toplevel(root)
     win.title(f"Player — {stimulus.audio_file_name}")
@@ -416,11 +413,11 @@ def play_interactive(stimulus, xlim=None, ylim=None):
     except Exception:
         pass
 
-    # ── Matplotlib figure ─────────────────
+    # Matplotlib figure
     fig = Figure(figsize=(12, 4.5), dpi=100, facecolor=BG)
     ax = fig.add_subplot(111)
 
-    # ── View drawing functions ────────────
+    # View drawing functions
 
     def _draw_waveform():
         ax.plot(times, y_mono, color=WAVE_CLR, linewidth=0.4, alpha=0.85)
@@ -512,7 +509,7 @@ def play_interactive(stimulus, xlim=None, ylim=None):
         canvas_widget.draw()
         bg_snapshot = canvas_widget.copy_from_bbox(ax.bbox)
 
-    # ── Overlay draw helpers ──────────────
+    # ── Overlay draw helpers
 
     def _get_overlay_yrange():
         """Get y limits for overlay lines based on current view."""
@@ -568,7 +565,7 @@ def play_interactive(stimulus, xlim=None, ylim=None):
         # Re-snapshot for blitting
         bg_snapshot = canvas_widget.copy_from_bbox(ax.bbox)
 
-    # ── Initial draw ──────────────────────
+    # Initial draw
     _draw_waveform()
     ax.set_facecolor(SURFACE)
     ax.set_xlabel("Time (s)", color=FG, fontsize=9)
@@ -583,7 +580,7 @@ def play_interactive(stimulus, xlim=None, ylim=None):
     cursor_line = ax.axvline(x=start_time, color=BEAT_CLR, linewidth=1.5, alpha=0.9,
                              animated=True)
 
-    # ── Embed figure ──────────────────────
+    # Embed figure
     canvas_widget = FigureCanvasTkAgg(fig, master=win)
     canvas_widget.draw()
     canvas_widget.get_tk_widget().pack(fill="both", expand=True, padx=8, pady=(8, 0))
@@ -591,7 +588,7 @@ def play_interactive(stimulus, xlim=None, ylim=None):
     # Save background for blitting
     bg_snapshot = canvas_widget.copy_from_bbox(ax.bbox)
 
-    # ── Click on plot to seek ─────────────
+    # Click on plot to seek
     def _on_click(event):
         if event.inaxes == ax:
             click_time = event.xdata
@@ -606,17 +603,17 @@ def play_interactive(stimulus, xlim=None, ylim=None):
 
     fig.canvas.mpl_connect("button_press_event", _on_click)
 
-    # ── Time label ────────────────────────
+    # Time label
     time_var = tk.StringVar(value=f"{_format_time(0)} / {_format_time(duration)}")
     tk.Label(win, textvariable=time_var, font=("Menlo", 14),
              fg=FG, bg=BG).pack(pady=(6, 2))
 
-    # ── Status label ──────────────────────
+    # Status label
     status_var = tk.StringVar(value="")
     tk.Label(win, textvariable=status_var, font=("Menlo", 10),
              fg="#a6adc8", bg=BG).pack(pady=(2, 0))
 
-    # ── View mode buttons ─────────────────
+    # View mode buttons
     view_frame = tk.Frame(win, bg=BG)
     view_frame.pack(pady=(4, 2))
 
@@ -653,7 +650,7 @@ def play_interactive(stimulus, xlim=None, ylim=None):
 
     _update_view_btn_colors()
 
-    # ── Playback controls ─────────────────
+    # Playback controls
     ctrl_frame = tk.Frame(win, bg=BG)
     ctrl_frame.pack(pady=(4, 4))
 
@@ -705,7 +702,7 @@ def play_interactive(stimulus, xlim=None, ylim=None):
                          bg="#f38ba8", activebackground="#eba0ac", **ctrl_style)
     stop_btn.pack(side="left", padx=6)
 
-    # ── Toggle buttons ────────────────────
+    # Toggle buttons
     toggle_frame = tk.Frame(win, bg=BG)
     toggle_frame.pack(pady=(4, 12))
 
@@ -778,7 +775,7 @@ def play_interactive(stimulus, xlim=None, ylim=None):
 
     _update_toggle_colors()
 
-    # ── Update loop (blitting cursor) ─────
+    # Update loop (blitting cursor)
     def _update():
         if state["closed"]:
             return
