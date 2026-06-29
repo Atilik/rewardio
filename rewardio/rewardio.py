@@ -3,6 +3,7 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 os.environ["ABSL_MIN_LOG_LEVEL"] = "3"
 import numpy as np
 import librosa
+from datetime import datetime
 
 from .plot import plot_beats as _plot_beats, plot_waveform as _plot_waveform, plot_beats_and_onsets as _plot_beats_and_onsets, plot_interactive as _plot_interactive, plot_session_boxplots as _plot_session_boxplots, plot_spectrogram as _plot_spectrogram
 from .rhythm import detect_beats, get_bpm, onset_detection, syncopation_score
@@ -17,9 +18,12 @@ from .genre import (classify_genre as _classify_genre,
                    detect_pitch_crepe as _detect_pitch_crepe,
                    detect_key as _detect_key)
 
-# ──────────────────────────────────────────────
+from scipy import signal as sp_signal
+from .dsp import normalize as _normalize
+
+
+
 #  Stimulus class
-# ──────────────────────────────────────────────
 
 class Stimulus:
     """
@@ -35,7 +39,7 @@ class Stimulus:
     """
 
     def __init__(self, audio_file_path, sr=44100):
-        # ── Audio (lazy load) ────────────────
+        # Audio (lazy load)
         self.audio_file_path = audio_file_path
         self.audio_file_name = os.path.basename(audio_file_path)
         self.sr = sr
@@ -43,29 +47,29 @@ class Stimulus:
         self._n_channels = None
         self._duration = None
 
-        # ── Beat detection (lazy) ──────────
+        # Beat detection (lazy)
         self._beat_times = None
         self._beat_frames = None
         self._beat_positions = None
         self._meter = None
         self._bpm = None
 
-        # ── Source separation (lazy) ─────────
+        # Source separation (lazy)
         self.separated_drums = None
         self.separated_drums_sr = None
         self.separated_accompaniment = None
 
-        # ── Loudness (lazy load) ──
+        # Loudness (lazy load)
         self._loudness_lufs = None
         self._loudness_rms_db = None
         self._rms = None
 
-        # ── Analysis results (lazy) ──────────
+        # Analysis results (lazy)
         self.onset_times = None
         self.toussaint_syncopation_score = None
         self.toussaint_syncopation_score_meter = None
 
-        # ── Essentia classification (lazy) ─────
+        # Essentia classification (lazy)
         self._genre = None
         self._mood = None
         self._voice_instrumental = None
@@ -76,13 +80,13 @@ class Stimulus:
         self._scale = None
         self._key_strength = None
 
-        # ── Extra Lazy Features ──
+        # Extra Lazy Features
         self._genre_predictions = None
         self._fluctuation = None
         self._irregularity = None
         self._spectral_features = None  # dict of per-frame arrays
 
-    # ── Audio Properties ──────────────────────────
+    # Audio Properties
     def _load_audio_if_needed(self):
         if self._y is None:
             sr = getattr(self, 'sr', 44100)
@@ -118,8 +122,7 @@ class Stimulus:
             self._bpm = get_bpm(self._beat_times)
         return self._beat_times
 
-    # ── Spectral Properties ──────────────────────
-
+    # Spectral Properties
     @property
     def fluctuation(self):
         if self._fluctuation is None:
@@ -165,8 +168,7 @@ class Stimulus:
         """Alias for .bpm"""
         return self.bpm
 
-    # ── Loudness Properties ──────────────────────
-
+    # Loudness Properties
     def _calc_loudness_if_needed(self):
         if self._loudness_lufs is None:
             self._loudness_lufs, self._loudness_rms_db = get_loudness(self.y, self.sr)
@@ -187,15 +189,14 @@ class Stimulus:
         self._calc_loudness_if_needed()
         return self._rms
 
-    # ── Private helpers ──────────────────────
-
+    # Private helpers
     def _to_mono(self):
         """Return a mono mix of the audio (for analysis only)."""
         if self.y.ndim == 1:
             return self.y
         return librosa.to_mono(self.y)
 
-    # ── Public methods ───────────────────────
+    # Public methods
 
     def separate(self, target="drums", gpu=None, confirm=True):
         """
@@ -212,8 +213,8 @@ class Stimulus:
         """
         if confirm and self.separated_drums is None:
             ans = input(
-                "⚠️  This requires Demucs source separation (~5-10s per song depending on GPU).\n"
-                "    Proceed? [Y/n] "
+                "!!! This requires Demucs source separation (~5-10s per song depending on GPU).\n"
+                "Proceed? [Y/n] "
             ).strip().lower()
             if ans in ('n', 'no'):
                 print("Skipped.")
@@ -256,8 +257,7 @@ class Stimulus:
                 drums_y = librosa.resample(drums_y, orig_sr=self.separated_drums_sr, target_sr=self.sr)
 
             # Low-pass filter (same as syncopation_score pipeline)
-            from scipy import signal as sp_signal
-            from .dsp import normalize as _normalize
+            
             nyquist = 0.5 * self.sr
             cutoff_hz = 1500
             b_low, a_low = sp_signal.butter(4, cutoff_hz / nyquist, btype="low")
@@ -363,8 +363,6 @@ class Stimulus:
         top_genre = self._genre_predictions[0]
         print(f"  {'Genre':<20s} {top_genre[0]}  ({top_genre[1]*100:.1f}%)")
 
-
-
         # Voice/Instrumental
         top_vi = self._voice_instrumental[0]
         print(f"  {'Vocal':<20s} {top_vi[0]}")
@@ -384,8 +382,7 @@ class Stimulus:
             print(f"  {'Pitch':<20s} (no voiced frames)")
         print()
 
-
-    # ── Voice / Instrumental ─────────────
+    # Voice / Instrumental
     @property
     def voice_instrumental(self):
         """'voice' or 'instrumental'."""
@@ -393,7 +390,7 @@ class Stimulus:
             self.classify()
         return self._voice_instrumental[0][0] if self._voice_instrumental else None
 
-    # ── Mood ─────────────────────────────
+    # Mood
     @property
     def mood(self):
         """Mood dict: {'happy': 0.8, 'sad': 0.1, 'aggressive': 0.2, 'relaxed': 0.6}."""
@@ -401,7 +398,7 @@ class Stimulus:
             self.classify()
         return self._mood
 
-    # ── Key / Scale ──────────────────────
+    # Key / Scale
     @property
     def key(self):
         """Musical key, e.g. 'C', 'F#', 'Bb'."""
@@ -416,7 +413,7 @@ class Stimulus:
             self.classify()
         return self._scale
 
-    # ── Pitch (CREPE) ────────────────────
+    # Pitch (CREPE)
     def _voiced_pitch(self):
         """Return voiced pitch frequencies (confidence > 0.5)."""
         if self._pitch_freq is None:
@@ -455,7 +452,7 @@ class Stimulus:
             self.classify()
         return float(np.std(self._pitch_conf))
 
-    # ── Beat IOI ─────────────────────────
+    # Beat IOI
     @property
     def beat_ioi_mean(self):
         """Mean inter-beat interval in seconds."""
@@ -472,7 +469,7 @@ class Stimulus:
             return 0.0
         return float(np.std(np.diff(bt)))
 
-    # ── Onset IOI ────────────────────────
+    # Onset IOI
     @property
     def onset_ioi_mean(self):
         """Mean inter-onset interval in seconds."""
@@ -487,7 +484,7 @@ class Stimulus:
             return 0.0
         return float(np.std(np.diff(self.onset_times)))
 
-    # ── Spectral Features ────────────────
+    # Spectral Features
     def _compute_spectral_if_needed(self):
         """Compute spectral features (once, cached)."""
         if self._spectral_features is None:
@@ -545,7 +542,7 @@ class Stimulus:
         """Std deviation of zero-crossing rate."""
         return float(np.std(self._compute_spectral_if_needed()["zcr"]))
 
-    # ── Fluctuation ───────────────────────
+    # Fluctuation
     # Computed eagerly at init — access directly: stimulus.fluctuation
 
     def _collect_attrs(self):
@@ -639,8 +636,6 @@ class Stimulus:
         output_path : str or None
             Parent directory for the Analysis folder.
         """
-        from datetime import datetime
-
         if output_path is None:
             output_path = os.path.dirname(os.path.abspath(__file__))
 
@@ -1089,7 +1084,7 @@ class Patient:
         if isinstance(index, int):
             if index < 1 or index > self.n_sessions:
                 print(
-                    f"⚠️  Index {index} is out of range. "
+                    f"!!! Index {index} is out of range. "
                     f"Indexing starts from 1 to {self.n_sessions}. "
                     f"Falling back to patient(1)."
                 )
@@ -1151,9 +1146,7 @@ class Patient:
         _patient_print(self)
 
 
-# ──────────────────────────────────────────────
-#  _folder_has_subdirs — helper for rewardio()
-# ──────────────────────────────────────────────
+# _folder_has_subdirs — helper for rewardio()
 
 def _folder_has_subdirs(path):
     """Check if a directory contains at least one sub-directory."""
@@ -1163,9 +1156,7 @@ def _folder_has_subdirs(path):
     return False
 
 
-# ──────────────────────────────────────────────
-#  rewardio() — smart entry point
-# ──────────────────────────────────────────────
+# rewardio() — smart entry point
 
 def rewardio(path):
     """
@@ -1190,9 +1181,7 @@ def rewardio(path):
         raise FileNotFoundError(f"Path not found: {path}")
 
 
-# ──────────────────────────────────────────────
-#  CLI
-# ──────────────────────────────────────────────
+# CLI
 
 if __name__ == "__main__":
     import sys, code
