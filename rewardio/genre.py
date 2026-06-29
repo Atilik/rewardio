@@ -11,8 +11,14 @@ Models are loaded lazily and cached for reuse across calls.
 import os
 import json
 import numpy as np
+import essentia
+from essentia.standard import TensorflowPredictEffnetDiscogs
+from essentia.standard import TensorflowPredict2D
+from essentia.standard import MonoLoader
+from essentia.standard import KeyExtractor
+from essentia.standard import PitchCREPE
 
-# ── Model paths ───────────────────────────────
+# Model paths
 _SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 _MODELS_DIR = os.path.join(_SCRIPT_DIR, "models")
 
@@ -30,13 +36,12 @@ _HEAD_FILES = {
 
 _CREPE_PATH = os.path.join(_MODELS_DIR, "crepe-medium-1.pb")
 
-# ── Lazy caches ───────────────────────────────
+# Lazy caches
 _embedding_model = None
 _head_models = {}          
 _head_classes = {}         
 _crepe_model = None
 _essentia_silenced = False
-
 
 def _silence_essentia():
     """Suppress ALL Essentia + TensorFlow log spam."""
@@ -45,7 +50,6 @@ def _silence_essentia():
         # Silence TF/ABSL C++ logs BEFORE any TF import
         os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
         os.environ["ABSL_MIN_LOG_LEVEL"] = "3"
-        import essentia
         essentia.log.warningActive = False
         essentia.log.infoActive = False
         _essentia_silenced = True
@@ -56,7 +60,6 @@ def _get_embedding_model():
     global _embedding_model
     if _embedding_model is not None:
         return _embedding_model
-
     _silence_essentia()
 
     if not os.path.isfile(_EFFNET_PATH):
@@ -65,7 +68,7 @@ def _get_embedding_model():
             f"Run the download script or see genre.py for instructions."
         )
 
-    from essentia.standard import TensorflowPredictEffnetDiscogs
+    
     _embedding_model = TensorflowPredictEffnetDiscogs(
         graphFilename=_EFFNET_PATH,
         output="PartitionedCall:1"
@@ -86,8 +89,6 @@ def _get_head_model(name):
 
     if not os.path.isfile(pb_path):
         raise FileNotFoundError(f"Model not found: {pb_path}")
-
-    from essentia.standard import TensorflowPredict2D
 
     # genre_discogs400 uses different node names than the others
     if name == "genre":
@@ -116,7 +117,7 @@ def _get_head_model(name):
 def _load_audio_16k(audio_file_path):
     """Load audio at 16kHz mono (required by Discogs-EffNet)."""
     _silence_essentia()
-    from essentia.standard import MonoLoader
+    
     return MonoLoader(
         filename=audio_file_path,
         sampleRate=16000,
@@ -148,17 +149,15 @@ def _classify(name, audio_file_path, top_n=5, embeddings=None):
     return [(classes[i] if i < len(classes) else str(i), float(avg[i])) for i in top_idx]
 
 
-# ──────────────────────────────────────────────
-#  Public API
-# ──────────────────────────────────────────────
-
 def classify_genre(audio_file_path, top_n=5):
     """Genre classification (400 Discogs sub-genres)."""
     return _classify("genre", audio_file_path, top_n=top_n)
 
+
 def classify_voice_instrumental(audio_file_path):
     """Voice vs instrumental classification."""
     return _classify("voice_instrumental", audio_file_path, top_n=2)
+
 
 def classify_mood(audio_file_path):
     """
@@ -218,7 +217,7 @@ def detect_pitch_crepe(audio_file_path):
     if _crepe_model is None:
         if not os.path.isfile(_CREPE_PATH):
             raise FileNotFoundError(f"CREPE model not found: {_CREPE_PATH}")
-        from essentia.standard import PitchCREPE
+        
         _crepe_model = PitchCREPE(graphFilename=_CREPE_PATH)
 
     audio = _load_audio_16k(audio_file_path)
@@ -237,7 +236,6 @@ def detect_key(audio_file_path):
         strength: float — confidence of the key estimation [0, 1]
     """
     _silence_essentia()
-    from essentia.standard import MonoLoader, KeyExtractor
 
     audio = MonoLoader(
         filename=audio_file_path,
