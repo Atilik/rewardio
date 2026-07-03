@@ -7,7 +7,7 @@ from datetime import datetime
 
 from .plot import plot_beats as _plot_beats, plot_waveform as _plot_waveform, plot_beats_and_onsets as _plot_beats_and_onsets, plot_interactive as _plot_interactive, plot_session_boxplots as _plot_session_boxplots, plot_spectrogram as _plot_spectrogram
 from .rhythm import detect_beats, get_bpm, onset_detection, syncopation_score
-from .core import load_audio, write_to_csv, stimulus_help as _stimulus_help, stimulus_print as _stimulus_print, stimulus_print_all as _stimulus_print_all, session_help as _session_help, session_print as _session_print, patient_help as _patient_help, patient_print as _patient_print, clear
+from .core import load_audio, write_to_csv, stimulus_help as _stimulus_help, stimulus_print as _stimulus_print, stimulus_print_all as _stimulus_print_all, session_help as _session_help, session_print as _session_print, participant_help as _participant_help, participant_print as _participant_print, clear
 from .dsp import normalize, get_loudness, get_rms, compute_fluctuation as _compute_fluctuation, spectral_irregularity as _spectral_irregularity, compute_spectral_features as _compute_spectral_features
 from .play import play_audio, play_interactive as _play_interactive, sonify_beats as _sonify_beats, sonify_beats_and_onsets as _sonify_beats_and_onsets
 from .separate import separate
@@ -964,14 +964,14 @@ class Session:
 
 
 # ──────────────────────────────────────────────
-#  Patient class (Folder of Session folders)
+#  Participant class (Folder of Session folders)
 # ──────────────────────────────────────────────
 
-class Patient:
+class Participant:
     """
     Wraps a folder of sub-folders, creating a Session for each sub-folder.
 
-    Hierarchy:  Patient → Session (sessions) → Stimulus (songs)
+    Hierarchy:  Participant → Session (sessions) → Stimulus (songs)
     """
     def __init__(self, folder_path, sr=44100):
         self.folder_path = folder_path
@@ -980,7 +980,7 @@ class Patient:
         if not os.path.isdir(folder_path):
             raise ValueError(f"Path is not a directory: {folder_path}")
 
-        print(f"Loading patient from: {folder_path}...")
+        print(f"Loading participant from: {folder_path}...")
 
         for name in sorted(os.listdir(folder_path)):
             sub_path = os.path.join(folder_path, name)
@@ -1086,7 +1086,7 @@ class Patient:
                 print(
                     f"!!! Index {index} is out of range. "
                     f"Indexing starts from 1 to {self.n_sessions}. "
-                    f"Falling back to patient(1)."
+                    f"Falling back to participant(1)."
                 )
                 index = 1
             return self.sessions[index - 1]  # 1-based
@@ -1112,9 +1112,9 @@ class Patient:
 
         Usage
         -----
-            patient(1)        # focus on first session
-            patient("session") # focus by partial folder name
-            patient()         # list all sessions
+            participant(1)        # focus on first session
+            participant("session") # focus by partial folder name
+            participant()         # list all sessions
         """
         if index is None:
             self.print()
@@ -1133,17 +1133,17 @@ class Patient:
 
     def __repr__(self):
         return (
-            f"Patient(path='{os.path.basename(self.folder_path)}', "
+            f"Participant(path='{os.path.basename(self.folder_path)}', "
             f"sessions={self.n_sessions})"
         )
 
     def help(self):
         """Print available attributes and methods."""
-        _patient_help(self)
+        _participant_help(self)
 
     def print(self):
-        """Print summary of the Patient collection."""
-        _patient_print(self)
+        """Print summary of the Participant collection."""
+        _participant_print(self)
 
 
 # _folder_has_subdirs — helper for rewardio()
@@ -1164,7 +1164,7 @@ def rewardio(path):
 
         - audio file                 ->  Stimulus
         - folder of audio files      ->  Session
-        - folder of folders          ->  Patient
+        - folder of folders          ->  Participant
     """
     if os.path.isfile(path):
         ext = os.path.splitext(path)[1].lower()
@@ -1174,7 +1174,7 @@ def rewardio(path):
             raise ValueError(f"Unsupported file type: {ext}")
     elif os.path.isdir(path):
         if _folder_has_subdirs(path):
-            return Patient(path)
+            return Participant(path)
         else:
             return Session(path)
     else:
@@ -1196,13 +1196,13 @@ if __name__ == "__main__":
         'rewardio': rewardio,
         'Stimulus': Stimulus,
         'Session': Session,
-        'Patient': Patient,
+        'Participant': Participant,
         'clear': clear,
         'meter': True,
     }
 
-    if isinstance(obj, Patient):
-        ns['patient'] = obj
+    if isinstance(obj, Participant):
+        ns['participant'] = obj
         ns['session'] = obj[1] if obj.n_sessions > 0 else obj
         ns['stimulus'] = ns['session'][1] if isinstance(ns['session'], Session) and len(ns['session']) > 0 else None
         obj._shell_ns = ns
@@ -1219,15 +1219,15 @@ if __name__ == "__main__":
     clear()
     print(obj)
 
-    if isinstance(obj, Patient):
+    if isinstance(obj, Participant):
         print(
             "\nrewardio is an interactive tool built for music analysis.\n"
-            "Please type patient.help(), session.help(), or stimulus.help() to get started.\n\n"
-            "  patient          -> all sessions for this patient\n"
+            "Please type participant.help(), session.help(), or stimulus.help() to get started.\n\n"
+            "  participant          -> all sessions for this participant\n"
             "  session          -> currently focused session\n"
             "  stimulus         -> currently focused item\n"
-            "  patient(1)       -> focus on a specific session\n"
-            '  patient("name")  -> focus session by folder name\n'
+            "  participant(1)       -> focus on a specific session\n"
+            '  participant("name")  -> focus session by folder name\n'
             "  session(1)       -> focus on a specific item\n"
             '  session("name")  -> focus by partial filename match\n'
         )

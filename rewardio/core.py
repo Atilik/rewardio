@@ -273,22 +273,22 @@ def session_print(session):
 
 
 # ──────────────────────────────────────────────
-#  Patient helpers  (help / print)
+#  Participant helpers  (help / print)
 # ──────────────────────────────────────────────
 
-def patient_help(patient):
-    """Print available attributes and methods for the Patient class."""
-    print("\n=== Patient Help ===")
+def participant_help(participant):
+    """Print available attributes and methods for the Participant class."""
+    print("\n=== Participant Help ===")
     print("\nAttributes:")
-    print("  .folder_path               - Full path to the patient folder")
+    print("  .folder_path               - Full path to the participant folder")
     print("  .sessions                  - List of Session objects")
     print("  .n_sessions                - Number of sessions (sub-folders)")
 
     print("\nMethods:")
-    print("  patient(i)                 : Select and focus on the i-th session")
-    print("  patient('name')            : Select by partial folder name match")
-    print("  patient[i]                 : Get the i-th session (1-based)")
-    print("  patient['name']            : Get session by partial folder name match")
+    print("  participant(i)                 : Select and focus on the i-th session")
+    print("  participant('name')            : Select by partial folder name match")
+    print("  participant[i]                 : Get the i-th session (1-based)")
+    print("  participant['name']            : Get session by partial folder name match")
     print("  .save(path)                : Save current attributes of all sessions to CSV")
     print("  .process_and_save(path)    : Compute all metrics for every session, then save")
     print("  .help()                    : Show this message")
@@ -299,22 +299,22 @@ def patient_help(patient):
     print("=" * 30 + "\n")
 
 
-def patient_print(patient):
-    """Print summary of the Patient collection."""
-    print("\n=== Patient Summary ===")
-    print(f"  Path     : {patient.folder_path}")
-    print(f"  Sessions : {patient.n_sessions}\n")
+def participant_print(participant):
+    """Print summary of the Participant collection."""
+    print("\n=== Participant Summary ===")
+    print(f"  Path     : {participant.folder_path}")
+    print(f"  Sessions : {participant.n_sessions}\n")
 
     # Session listing
     print("  Sessions:")
-    if patient.n_sessions == 0:
+    if participant.n_sessions == 0:
         print("    (No sessions loaded)")
     else:
-        for i, s in enumerate(patient.sessions):
+        for i, s in enumerate(participant.sessions):
             folder_name = os.path.basename(s.folder_path)
             print(f"    [{i+1}] {folder_name}  ({len(s)} songs)")
             if i >= 19:
-                print(f"    ... and {patient.n_sessions - 20} more.")
+                print(f"    ... and {participant.n_sessions - 20} more.")
                 break
     print("=" * 30 + "\n")
 

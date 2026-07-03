@@ -1,6 +1,6 @@
 # rewardio: Music Analysis Toolbox
 
-A simple, interactive command-line Python tool for music information retrieval (MIR). `rewardio` provides an intuitive interactive shell to load, analyze, and visualize audio files—either individually, by session (folder of songs), or by patient (folder of sessions).
+A simple, interactive command-line Python tool for music information retrieval (MIR). `rewardio` provides an intuitive interactive shell to load, analyze, and visualize audio files—either individually, by session (folder of songs), or by participant (folder of sessions).
 
 ## Features
 
@@ -38,7 +38,7 @@ python rewardio.py /path/to/audio/
 
 Open the terminal from your macos.
 
-Launch the tool by passing the path to an audio file, a session folder, or a patient folder.
+Launch the tool by passing the path to an audio file, a session folder, or a participant folder.
 
 ```bash
 cd rewardio/
@@ -48,8 +48,8 @@ python rewardio.py /path/to/song.wav
 # Load a single session (folder of audio files):
 python rewardio.py /path/to/session_folder/
 
-# Load a patient (folder containing session folders):
-python rewardio.py /path/to/patient_folder/
+# Load a participant (folder containing session folders):
+python rewardio.py /path/to/participant_folder/
 ```
 
 This drops you into an interactive Python shell pre-loaded with your data.
@@ -60,11 +60,11 @@ This drops you into an interactive Python shell pre-loaded with your data.
 
 `rewardio` structures your data into three levels depending on the folder you pass:
 
-1. **Patient**: A folder containing multiple *Session* folders.
+1. **Participant**: A folder containing multiple *Session* folders.
 2. **Stimuli** (Session): A folder containing multiple *Stimulus* audio files.
 3. **Stimulus**: A single audio file (e.g., a `.wav` or `.mp3`).
 
-When you load a folder, `rewardio` automatically gives you variables (`patient`, `stimuli`, `stimulus`) to interact with your data immediately.
+When you load a folder, `rewardio` automatically gives you variables (`participant`, `stimuli`, `stimulus`) to interact with your data immediately.
 
 ---
 
@@ -73,18 +73,18 @@ When you load a folder, `rewardio` automatically gives you variables (`patient`,
 Type the following commands directly into the terminal once `rewardio` is launched:
 
 ### Navigating Data
-- `patient(1)` — Focus on the 1st session. Updates the `stimuli` variable.
-- `patient("baseline")` — Focus on a session containing "baseline" in its folder name.
+- `participant(1)` — Focus on the 1st session. Updates the `stimuli` variable.
+- `participant("baseline")` — Focus on a session containing "baseline" in its folder name.
 - `stimuli(3)` — Focus on the 3rd song in the current session. Updates the `stimulus` variable.
 - `stimuli("beatles")` — Focus on a song containing "beatles" in its filename.
 
 ### Viewing Info
 - `stimulus.help()` — List all available attributes and methods for the current song.
 - `stimuli.help()` — List all available methods for the session.
-- `patient.help()` — List all available methods for the patient.
+- `participant.help()` — List all available methods for the participant.
 - `stimulus.print()` — Print a summary of the current song (loudness, BPM, syncopation, key, etc.).
 - `stimuli.print()` — Print summary metrics averaged across the whole session.
-- `patient.print()` — Print the current attributes and sessions loaded.
+- `participant.print()` — Print the current attributes and sessions loaded.
 
 ### Interactive Player & Viz
 - **`stimulus.play()`**
@@ -111,7 +111,7 @@ Access properties on-the-fly. If a metric hasn't been computed yet, `rewardio` c
 - Computes ALL available metrics (beats, syncopation, loudness, genre, mood, key, etc.) for the specific song and saves them to a CSV file.
 - `stimuli.process_and_save("output_folder")`
   Computes ALL available metrics (beats, syncopation, loudness, genre, mood, key, etc.) for every song in the session and saves them to a CSV file.
-- `patient.process_and_save("output_folder")`
+- `participant.process_and_save("output_folder")`
   Does the same, but loops through every session folder, adding a `session` column to the final CSV.
 
 ---
