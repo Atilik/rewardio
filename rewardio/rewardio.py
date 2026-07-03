@@ -899,6 +899,8 @@ class Session:
         if not isinstance(index, (int, str)):
             raise TypeError(f"Index must be an integer or string, got {type(index).__name__}")
         if isinstance(index, int):
+            if len(self.items) == 0:
+                raise ValueError("This session has no stimuli to select.")
             if index < 1 or index > len(self.items):
                 print(
                     f"⚠️  Index {index} is out of range. "
@@ -1082,6 +1084,8 @@ class Participant:
         if not isinstance(index, (int, str)):
             raise TypeError(f"Index must be an integer or string, got {type(index).__name__}")
         if isinstance(index, int):
+            if self.n_sessions == 0:
+                raise ValueError("This participant has no sessions to select.")
             if index < 1 or index > self.n_sessions:
                 print(
                     f"!!! Index {index} is out of range. "

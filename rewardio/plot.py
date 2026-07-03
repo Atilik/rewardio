@@ -426,6 +426,7 @@ def plot_spectrogram(stimulus, xlim=None, ylim=None, scale='mel'):
     win.protocol("WM_DELETE_WINDOW", lambda: (plt.close(fig), win.destroy()))
     win.lift()
     win.focus_force()
+    win.wait_window()
 
 
 def plot_pitch(stimulus, xlim=None):
@@ -494,3 +495,4 @@ def plot_pitch(stimulus, xlim=None):
     win.protocol("WM_DELETE_WINDOW", lambda: (plt.close(fig), win.destroy()))
     win.lift()
     win.focus_force()
+    win.wait_window()

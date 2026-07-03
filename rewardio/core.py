@@ -55,7 +55,7 @@ def write_to_csv(rows, output_path=None):
     folder_path = os.path.join(output_path, folder_name)
     os.makedirs(folder_path, exist_ok=True)
 
-    file_name = now.strftime("rewardio_%H-%M.csv")
+    file_name = now.strftime("rewardio_%H-%M-%S.csv")
     csv_path = os.path.join(folder_path, file_name)
 
     # Collect all unique keys across rows to handle sparse data
@@ -73,6 +73,7 @@ def write_to_csv(rows, output_path=None):
         writer.writerows(rows)
 
     print(f"CSV saved → {csv_path}")
+    return csv_path
 
 
 # ──────────────────────────────────────────────

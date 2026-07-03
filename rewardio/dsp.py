@@ -74,11 +74,11 @@ def normalize(y):
 
 def filter(y, filter_type, cutoff_freq, sr=44100, hop_length=512):
     if filter_type == "low_pass":
-        filter_low_pass(y, cutoff_freq, sr, hop_length)
+        return filter_low_pass(y, cutoff_freq, sr, hop_length)
     elif filter_type == "high_pass":
-        filter_high_pass(y, cutoff_freq, sr, hop_length)
+        return filter_high_pass(y, cutoff_freq, sr, hop_length)
     elif filter_type == "bell":
-        filter_bell(y, cutoff_freq, sr, hop_length)
+        return filter_bell(y, cutoff_freq, sr, hop_length)
     else:
         return "Usage: filter(y, filter_type, cutoff_freq, sr, hop_length"
 

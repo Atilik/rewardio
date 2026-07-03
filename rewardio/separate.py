@@ -12,7 +12,7 @@ torch.set_num_threads(1)
 # Global cache for the model
 _MODEL = None
 
-def separate(file, target_source=None, gpu=None):
+def separate(file, target_source="drums", gpu=None):
     """
     Run Demucs source separation model on WAV files to isolate stems.
     
@@ -66,12 +66,15 @@ def separate(file, target_source=None, gpu=None):
     # Map sources to names
     sources_dict = dict(zip(model.sources, sources))
 
-    # Divide source and trarget source
+    # Divide source and target source
     SOURCE = ['vocals', 'drums', 'bass', 'other']
-    accompaniment = [s for s in SOURCE if s not in target_source]
-    
-    # Get each sources
-    accompaniments = sources_dict[accompaniment[0]] + sources_dict[accompaniment[1]] + sources_dict[accompaniment[2]]
+    if target_source not in SOURCE:
+        raise ValueError(f"Unknown target source '{target_source}'. Choose from: {SOURCE}")
+    # Everything that isn't the target is accompaniment (exact match, not substring)
+    accompaniment = [s for s in SOURCE if s != target_source]
+
+    # Sum the accompaniment stems and grab the target stem
+    accompaniments = sum(sources_dict[s] for s in accompaniment)
     target = sources_dict[target_source]
     
     # Convert from Tensor to Numpy
