@@ -1,5 +1,6 @@
 import os
 import time as _time
+import threading
 import tkinter as tk
 import numpy as np
 import mir_eval
@@ -321,6 +322,9 @@ def play_interactive(stimulus, xlim=None, ylim=None):
         "onset_track": None,   # mono ping track for onsets
     }
 
+    # Cache of computed spectrograms so re-switching views is instant
+    spec_cache = {}   # scale -> (S_dB, y_axis)
+
     def _build_beat_track():
         if tracks["beat_track"] is not None:
             return
@@ -382,6 +386,8 @@ def play_interactive(stimulus, xlim=None, ylim=None):
         "onset_lines": None,
         "audio": audio_base.astype(np.float32),
         "view_mode": "Waveform",
+        "switch_gen": 0,          # bumped on every view switch
+        "pending_switch": None,   # (gen, mode) posted by a worker, applied on main thread
     }
 
     def _current_sample():
@@ -426,7 +432,15 @@ def play_interactive(stimulus, xlim=None, ylim=None):
             ax.set_ylim(ylim)
         ax.set_ylabel("Amplitude", color=FG, fontsize=9)
 
-    def _draw_spectrogram(scale):
+    def _compute_spec(scale):
+        """Compute (and cache) the dB spectrogram for a scale.
+
+        Pure numpy/librosa — no Tk/matplotlib — so it is safe to call from a
+        worker thread. The heavy FFT releases the GIL, so audio playback keeps
+        being fed while this runs.
+        """
+        if scale in spec_cache:
+            return spec_cache[scale]
         if scale == 'mel':
             S = librosa.feature.melspectrogram(y=y_mono, sr=sr, n_mels=128, fmax=sr // 2)
             S_dB = librosa.power_to_db(S, ref=np.max)
@@ -435,7 +449,12 @@ def play_interactive(stimulus, xlim=None, ylim=None):
             S = np.abs(librosa.stft(y_mono)) ** 2
             S_dB = librosa.power_to_db(S, ref=np.max)
             y_axis = 'log' if scale == 'log' else 'hz'
+        spec_cache[scale] = (S_dB, y_axis)
+        return spec_cache[scale]
 
+    def _draw_spectrogram(scale):
+        # Uses the cached result — computed off-thread on first use (see _switch_view)
+        S_dB, y_axis = _compute_spec(scale)
         librosa.display.specshow(
             S_dB, sr=sr, x_axis='time', y_axis=y_axis,
             ax=ax, cmap='magma', fmax=sr // 2
@@ -625,12 +644,49 @@ def play_interactive(stimulus, xlim=None, ylim=None):
     def _switch_view(mode):
         if state["view_mode"] == mode:
             return
+
+        # Does this view need heavy data that isn't ready yet?
+        scale_map = {"Mel": "mel", "Log": "log", "Linear": "linear"}
+        pending = None
+        if mode in scale_map and scale_map[mode] not in spec_cache:
+            pending = ("spec", scale_map[mode])
+        elif mode == "Pitch" and stimulus._pitch_freq is None:
+            pending = ("pitch", None)
+
         state["view_mode"] = mode
-        status_var.set(f"Switching to {mode}...")
-        win.update_idletasks()
-        _redraw_view()
         _update_view_btn_colors()
-        status_var.set("")
+
+        if pending is None:
+            # Data is ready (or a lightweight view) — redraw right away.
+            _redraw_view()
+            status_var.set("")
+            return
+
+        # Heavy data missing: compute it OFF the UI thread so the audio callback
+        # keeps getting fed (numpy FFT / TF inference release the GIL). The redraw
+        # is applied afterwards on the main thread by the cursor loop — this is
+        # what prevents the audio pop when switching views during playback.
+        status_var.set(f"Preparing {mode}...")
+        state["switch_gen"] += 1
+        gen = state["switch_gen"]
+        kind, scale = pending
+
+        def _worker():
+            try:
+                if kind == "spec":
+                    _compute_spec(scale)
+                else:
+                    from .genre import detect_pitch_crepe
+                    (stimulus._pitch_time,
+                     stimulus._pitch_freq,
+                     stimulus._pitch_conf) = detect_pitch_crepe(stimulus.audio_file_path)
+            except Exception as e:
+                print(f"View preparation error: {e}")
+            # Post the result back; the main-thread cursor loop applies it.
+            # (No Tk/matplotlib calls here — those must stay on the main thread.)
+            state["pending_switch"] = (gen, mode)
+
+        threading.Thread(target=_worker, daemon=True).start()
 
     def _update_view_btn_colors():
         for name, btn in view_buttons.items():
@@ -670,7 +726,10 @@ def play_interactive(stimulus, xlim=None, ylim=None):
         state["paused"] = False
         play_pause_btn.configure(text="⏸")
         try:
-            sd.play(chunk, samplerate=sr, blocksize=1024)
+            # 'high' latency gives the output a deeper buffer, so a brief
+            # main-thread stall (e.g. a spectrogram redraw) can't starve the
+            # audio callback and cause a pop.
+            sd.play(chunk, samplerate=sr, blocksize=1024, latency='high')
         except Exception as e:
             print(f"Audio playback error: {e}")
             state["playing"] = False
@@ -775,10 +834,26 @@ def play_interactive(stimulus, xlim=None, ylim=None):
 
     _update_toggle_colors()
 
+    def _apply_pending_switch(gen, mode):
+        # Main-thread half of a view switch: the heavy data was prepared in a
+        # worker, now do the actual (matplotlib) redraw here.
+        if state["closed"]:
+            return
+        if gen != state["switch_gen"] or state["view_mode"] != mode:
+            return  # a newer switch superseded this one
+        _redraw_view()
+        status_var.set("")
+
     # Update loop (blitting cursor)
     def _update():
         if state["closed"]:
             return
+
+        # Apply any background-prepared view switch on the main thread.
+        ps = state["pending_switch"]
+        if ps is not None:
+            state["pending_switch"] = None
+            _apply_pending_switch(*ps)
 
         pos = _current_sample()
 
