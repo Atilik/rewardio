@@ -548,6 +548,10 @@ def play_interactive(stimulus, xlim=None, ylim=None):
                            color=BEAT_CLR, linestyles="dashed",
                            linewidth=0.8, alpha=0.6, label="beats")
             state["beat_lines"] = lc
+            # Pin the view: the vlines span the current view limits, so
+            # autoscale would add margins around them and zoom out ~10%
+            # on every toggle. Fixing the limits disables that.
+            ax.set_ylim(ymin, ymax)
 
     def _draw_overlay_onsets():
         if state["onset_lines"] is not None:
@@ -562,6 +566,9 @@ def play_interactive(stimulus, xlim=None, ylim=None):
                            color=ONSET_CLR, linestyles="solid",
                            linewidth=1.2, alpha=0.7, label="onsets")
             state["onset_lines"] = lc
+            # Pin the view (see _draw_overlay_beats) — prevents autoscale
+            # from zooming out on every toggle.
+            ax.set_ylim(ymin, ymax)
 
     def _rebuild_legend():
         handles, labels = ax.get_legend_handles_labels()
