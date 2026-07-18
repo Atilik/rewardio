@@ -35,7 +35,8 @@ def get_loudness(y, sr):
     rms = np.sqrt(np.mean(y.astype(np.float64) ** 2))
     rms_db = 20.0 * np.log10(rms + 1e-12)  # guard against log(0)
 
-    return round(lufs, 2), round(rms_db, 2)
+    # Full precision — display code formats for readability; CSV stores raw
+    return float(lufs), float(rms_db)
 
 
 def get_rms(y, sr):
@@ -63,7 +64,7 @@ def get_rms(y, sr):
     rms = librosa.feature.rms(y=y_mono)[0]  # shape (1, n_frames) -> (n_frames,)
     rms_mean = float(np.mean(rms))
 
-    return round(rms_mean, 6)
+    return rms_mean
 
 
 def normalize(y):

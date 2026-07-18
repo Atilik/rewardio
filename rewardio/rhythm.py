@@ -433,7 +433,8 @@ def get_bpm(beat_times):
 
     # Convert the interval (seconds per beat) to BPM (beats per minute)
     # (60 seconds per minute) / (X seconds per beat) = Y beats per minute
-    bpm = int(np.round(60.0 / median_interval))
+    # Keep sub-BPM precision (2 decimals) instead of quantizing to int
+    bpm = float(np.round(60.0 / median_interval, 2))
 
     return bpm
 

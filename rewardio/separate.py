@@ -24,8 +24,10 @@ def separate(file, target_source="drums", gpu=None):
     target_source : str
             target source to separate. (optional, default = Drums)
     
-    gpu : torch.device
-          GPU device to use for processing. If None, CPU will be used.
+    gpu : bool, str, or torch.device
+          Compute device. None/False = CPU, True = CUDA if available
+          (falls back to CPU with a warning), or an explicit device
+          (e.g. "cuda:0", "mps", torch.device("cuda")).
           
     Returns
     -------
@@ -49,19 +51,27 @@ def separate(file, target_source="drums", gpu=None):
     
     if _MODEL is None:
         # print("Loading Demucs model (this happens only once)...")
-        if gpu: 
-            _MODEL = get_model(name="htdemucs").cuda()
-        else:
-            _MODEL = get_model(name="htdemucs").cpu()
+        _MODEL = get_model(name="htdemucs")
         _MODEL.eval()
-        
-    model = _MODEL
 
-    model.eval()
+    # Resolve the compute device on every call (the cached model is moved as
+    # needed, so a later gpu= argument is not silently ignored).
+    if gpu is None or gpu is False:
+        device = torch.device("cpu")
+    elif gpu is True:
+        if torch.cuda.is_available():
+            device = torch.device("cuda")
+        else:
+            print("CUDA not available — falling back to CPU.")
+            device = torch.device("cpu")
+    else:
+        device = torch.device(gpu)
+
+    model = _MODEL.to(device)
 
     # Apply separation
     waveform = waveform.unsqueeze(0)
-    sources = apply_model(model, waveform, split=True, overlap=0.25, progress=True)[0]
+    sources = apply_model(model, waveform, split=True, overlap=0.25, progress=True, device=device)[0]
 
     # Map sources to names
     sources_dict = dict(zip(model.sources, sources))

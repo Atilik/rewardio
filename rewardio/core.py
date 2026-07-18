@@ -141,9 +141,9 @@ def stimulus_print(stimulus):
     print(f"  SR       : {stimulus.sr} Hz  ({stimulus.n_channels}ch)")
 
     # Loudness (always available)
-    print(f"  Int.LUFS : {stimulus.loudness_lufs}  [−70 to 0] (ITU-R BS.1770-4)")
-    print(f"  RMS (dB) : {stimulus.loudness_rms_db} dBFS  [−∞ to 0]")
-    print(f"  RMS      : {stimulus.rms}  [0–1]")
+    print(f"  Int.LUFS : {stimulus.loudness_lufs:.2f}  [−70 to 0] (ITU-R BS.1770-4)")
+    print(f"  RMS (dB) : {stimulus.loudness_rms_db:.2f} dBFS  [−∞ to 0]")
+    print(f"  RMS      : {stimulus.rms:.6f}  [0–1]")
 
     # BPM (lazy — don't trigger)
     if getattr(stimulus, '_bpm', None) is not None:
@@ -212,9 +212,9 @@ def stimulus_print_all(stimulus):
         print("  beat_times                : (Not calculated)")
 
     # Loudness (always available — computed on init)
-    print(f"  loudness_lufs             : {stimulus.loudness_lufs} LUFS")
-    print(f"  loudness_rms_db           : {stimulus.loudness_rms_db} dBFS")
-    print(f"  rms                       : {stimulus.rms}")
+    print(f"  loudness_lufs             : {stimulus.loudness_lufs:.2f} LUFS")
+    print(f"  loudness_rms_db           : {stimulus.loudness_rms_db:.2f} dBFS")
+    print(f"  rms                       : {stimulus.rms:.6f}")
     
     # Print other attributes in __dict__, skipping private ones
     for key, value in stimulus.__dict__.items():

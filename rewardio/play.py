@@ -388,6 +388,8 @@ def play_interactive(stimulus, xlim=None, ylim=None):
         "view_mode": "Waveform",
         "switch_gen": 0,          # bumped on every view switch
         "pending_switch": None,   # (gen, mode) posted by a worker, applied on main thread
+        "toggle_pending": None,   # "beats"/"onsets" while a toggle worker runs
+        "pending_toggle": None,   # (kind, ok) posted by the worker, applied on main thread
     }
 
     def _current_sample():
@@ -796,40 +798,87 @@ def play_interactive(stimulus, xlim=None, ylim=None):
             pos = _current_sample()
             _play_from(pos)
 
-    def _toggle_beats():
-        if not state["beats_on"]:
-            if stimulus._beat_times is None:
-                status_var.set("Detecting beats...")
-                win.update_idletasks()
-                _ = stimulus.beat_times
-                status_var.set(f"Detected {len(stimulus.beat_times)} beats.")
-            _build_beat_track()
+    def _apply_toggle(kind, ok):
+        # Main-thread half of a toggle: the worker prepared the data,
+        # now flip state and redraw here (Tk/matplotlib must stay on main).
+        state["toggle_pending"] = None
+        if state["closed"]:
+            return
+        if not ok:
+            status_var.set(f"{kind.capitalize()} detection failed — see terminal.")
+            return
+        if kind == "beats":
             state["beats_on"] = True
+            status_var.set(f"Detected {len(stimulus.beat_times)} beats.")
         else:
-            state["beats_on"] = False
-            status_var.set("")
+            state["onsets_on"] = True
+            status_var.set(f"Detected {len(stimulus.onset_times)} onsets.")
         _update_toggle_colors()
         _refresh_overlays()
         _remix_if_playing()
 
+    def _start_toggle_worker(kind, prepare):
+        # Run heavy detection OFF the UI thread so the audio callback keeps
+        # getting fed (no pop); completion is posted to the cursor loop.
+        state["toggle_pending"] = kind
+
+        def _worker():
+            try:
+                prepare()          # numpy/model inference only — no Tk calls
+                ok = True
+            except Exception as e:
+                print(f"{kind} detection error: {e}")
+                ok = False
+            state["pending_toggle"] = (kind, ok)
+
+        threading.Thread(target=_worker, daemon=True).start()
+
+    def _toggle_beats():
+        if state["beats_on"]:
+            state["beats_on"] = False
+            status_var.set("")
+            _update_toggle_colors()
+            _refresh_overlays()
+            _remix_if_playing()
+            return
+        if state["toggle_pending"] is not None:
+            return  # a toggle is already being prepared
+        if stimulus._beat_times is not None:
+            _build_beat_track()   # cheap once beats are cached
+            _apply_toggle("beats", True)
+            return
+        status_var.set("Detecting beats...")
+
+        def _prepare():
+            _ = stimulus.beat_times   # BEAT THIS! inference
+            _build_beat_track()
+
+        _start_toggle_worker("beats", _prepare)
+
     def _toggle_onsets():
-        if not state["onsets_on"]:
-            if stimulus.onset_times is None:
-                if stimulus.separated_drums is None:
-                    status_var.set("⚠️  Please confirm in the terminal")
-                else:
-                    status_var.set("Detecting onsets...")
-                win.update_idletasks()
-                stimulus.detect_onsets()
-                status_var.set(f"Detected {len(stimulus.onset_times)} onsets.")
-            _build_onset_track()
-            state["onsets_on"] = True
-        else:
+        if state["onsets_on"]:
             state["onsets_on"] = False
             status_var.set("")
-        _update_toggle_colors()
-        _refresh_overlays()
-        _remix_if_playing()
+            _update_toggle_colors()
+            _refresh_overlays()
+            _remix_if_playing()
+            return
+        if state["toggle_pending"] is not None:
+            return  # a toggle is already being prepared
+        if stimulus.onset_times is not None:
+            _build_onset_track()
+            _apply_toggle("onsets", True)
+            return
+        if stimulus.separated_drums is None:
+            status_var.set("⚠️  Please confirm in the terminal")
+        else:
+            status_var.set("Detecting onsets...")
+
+        def _prepare():
+            stimulus.detect_onsets()  # may run Demucs (+ terminal prompt)
+            _build_onset_track()
+
+        _start_toggle_worker("onsets", _prepare)
 
     beats_btn = tk.Button(toggle_frame, text="Beats",
                           command=_toggle_beats, **toggle_style)
@@ -861,6 +910,12 @@ def play_interactive(stimulus, xlim=None, ylim=None):
         if ps is not None:
             state["pending_switch"] = None
             _apply_pending_switch(*ps)
+
+        # Apply any background-prepared beats/onsets toggle on the main thread.
+        pt = state["pending_toggle"]
+        if pt is not None:
+            state["pending_toggle"] = None
+            _apply_toggle(*pt)
 
         pos = _current_sample()
 

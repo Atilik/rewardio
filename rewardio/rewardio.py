@@ -42,6 +42,11 @@ class Stimulus:
         # Audio (lazy load)
         self.audio_file_path = audio_file_path
         self.audio_file_name = os.path.basename(audio_file_path)
+        # Fail fast on missing/unreadable files so Session can skip them at
+        # load time instead of crashing mid-batch on the first lazy access.
+        if not os.path.isfile(audio_file_path):
+            raise FileNotFoundError(f"Audio file not found: {audio_file_path}")
+        librosa.get_samplerate(audio_file_path)  # cheap header probe; raises if unreadable
         self.sr = sr
         self._y = None
         self._n_channels = None
@@ -767,8 +772,8 @@ class Stimulus:
         return (
             f"Stimulus(\"{self.audio_file_name}\")\n"
             f"  BPM      : {bpm_str}\n"
-            f"  Loudness : {self.loudness_lufs} LUFS  ({self.loudness_rms_db} dBFS RMS)\n"
-            f"  RMS      : {self.rms}\n"
+            f"  Loudness : {self.loudness_lufs:.2f} LUFS  ({self.loudness_rms_db:.2f} dBFS RMS)\n"
+            f"  RMS      : {self.rms:.6f}\n"
             f"  Duration : {self.duration:.2f}s\n"
             f"  SR       : {self.sr} Hz\n"
             f"  Channels : {ch_str}\n"
@@ -800,7 +805,8 @@ class Session:
                      s = Stimulus(fpath, sr=sr)
                      self.items.append(s)
                  except Exception as e:
-                     print(f"  [Skipped] {fname}: {e}")
+                     reason = str(e) or type(e).__name__
+                     print(f"  [Skipped] {fname}: unreadable audio ({reason})")
         
 
 
@@ -835,6 +841,10 @@ class Session:
                         if s.separated_drums is None:
                             s.separate(confirm=False)
                         s.syncopation_score()
+                    # Meter-aware score too, so session/participant CSVs get the
+                    # syncopation_score_meter column (parity with Stimulus.process_and_save)
+                    if s.toussaint_syncopation_score_meter is None and s.separated_drums is not None:
+                        s.syncopation_score(meter=True)
                 except Exception as e:
                     print(f"  [Skipped syncopation] {s.audio_file_name}: {e}")
 
@@ -873,6 +883,7 @@ class Session:
             if item.separated_drums is None:
                 item.separate(confirm=False)
             item.syncopation_score()
+            item.syncopation_score(meter=True)
             item.classify()
             item._compute_spectral_if_needed()
             print("Processing complete.")
@@ -1178,6 +1189,15 @@ def rewardio(path):
             raise ValueError(f"Unsupported file type: {ext}")
     elif os.path.isdir(path):
         if _folder_has_subdirs(path):
+            audio_exts = ('.wav', '.mp3', '.flac', '.aiff', '.ogg', '.m4a')
+            loose = [f for f in os.listdir(path)
+                     if os.path.splitext(f)[1].lower() in audio_exts]
+            if loose:
+                print(
+                    f"⚠️  Ignoring {len(loose)} audio file(s) at the top level of "
+                    f"'{path}' — it contains sub-folders, so it is loaded as a "
+                    f"participant (audio must live inside session folders)."
+                )
             return Participant(path)
         else:
             return Session(path)
