@@ -124,6 +124,8 @@ def stimulus_help(stimulus):
     print("  .save(path)                : Save current attributes to CSV")
     print("  .save_timeseries(path)     : Save all time series as .npz")
     print("  .process_and_save(path)    : Compute all metrics, then save CSV")
+    print("  .partial_process_save(rhythm=True, ...) : Compute only selected groups")
+    print("                               (rhythm, syncopation, genre, pitch, key, spectral)")
     print("  .help()                    : Show attributes and methods")
     print("  .print()                   : Concise summary of key attributes")
     print("  .print_all()               : List ALL attribute values")
@@ -237,6 +239,8 @@ def session_help(session):
     print("\nAttributes:")
     print("  .folder_path               - Full path to source folder")
     print("  .items                     - List of Stimulus objects")
+    print("  .average_fluctuation       - Mean fluctuation across songs [0–∞]")
+    print("  .average_irregularity      - Mean spectral irregularity across songs [0–1]")
 
     print("\nMethods:")
     print("  session(i)                 : Select and focus on the i-th Stimulus")
@@ -247,6 +251,7 @@ def session_help(session):
     print("  .save(path)                : Save current attributes to CSV")
     print("  .save_timeseries(path)     : Save all time series as .npz")
     print("  .process_and_save(path)    : Compute all metrics, then save CSV")
+    print("  .partial_process_save(rhythm=True, ...) : Compute only selected groups")
     print("  .help()                    : Show this message")
     print("  .print()                   : Summary with item listing")
 
@@ -284,6 +289,8 @@ def participant_help(participant):
     print("  .folder_path               - Full path to the participant folder")
     print("  .sessions                  - List of Session objects")
     print("  .n_sessions                - Number of sessions (sub-folders)")
+    print("  .average_fluctuation       - Mean fluctuation across all songs [0–∞]")
+    print("  .average_irregularity      - Mean spectral irregularity across all songs [0–1]")
 
     print("\nMethods:")
     print("  participant(i)                 : Select and focus on the i-th session")
@@ -292,6 +299,7 @@ def participant_help(participant):
     print("  participant['name']            : Get session by partial folder name match")
     print("  .save(path)                : Save current attributes of all sessions to CSV")
     print("  .process_and_save(path)    : Compute all metrics for every session, then save")
+    print("  .partial_process_save(rhythm=True, ...) : Compute only selected groups")
     print("  .help()                    : Show this message")
     print("  .print()                   : Summary with session listing")
 

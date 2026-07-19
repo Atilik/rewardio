@@ -46,7 +46,10 @@ class Stimulus:
         # load time instead of crashing mid-batch on the first lazy access.
         if not os.path.isfile(audio_file_path):
             raise FileNotFoundError(f"Audio file not found: {audio_file_path}")
-        librosa.get_samplerate(audio_file_path)  # cheap header probe; raises if unreadable
+        import warnings
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")  # audioread fallback warns before raising
+            librosa.get_samplerate(audio_file_path)  # cheap header probe; raises if unreadable
         self.sr = sr
         self._y = None
         self._n_channels = None
@@ -551,36 +554,26 @@ class Stimulus:
     # Computed eagerly at init — access directly: stimulus.fluctuation
 
     def _collect_attrs(self):
-        """Gather currently-computed attributes into a dict for CSV export."""
+        """
+        Gather currently-computed attributes into a dict for CSV export.
+
+        Columns are grouped by topic (pitch & tonality → temporal → timbre →
+        loudness & other), following the organization used in cognitive
+        neuroscience / psychology MIR studies (cf. Salakka et al., 2021).
+        """
+        # ── File identity ──
         row = {
             "filename": self.audio_file_name,
             "duration": self.duration,
             "sr": self.sr,
             "n_channels": self.n_channels,
-            "loudness_lufs": self.loudness_lufs,
-            "loudness_rms_db": self.loudness_rms_db,
-            "rms": self.rms,
         }
-        if self._bpm is not None:
-            row["bpm"] = self._bpm
-        if self._beat_times is not None:
-            row["n_beats"] = len(self._beat_times)
-        if self.onset_times is not None:
-            row["n_onsets"] = len(self.onset_times)
-        if self.toussaint_syncopation_score is not None:
-            row["syncopation_score"] = self.toussaint_syncopation_score
-        if self.toussaint_syncopation_score_meter is not None:
-            row["syncopation_score_meter"] = self.toussaint_syncopation_score_meter
-        if self._meter is not None:
-            row["meter"] = self._meter
-        if self._genre_predictions is not None:
-            row["genre"] = self._genre_predictions[0][0]
-            row["genre_confidence"] = float(self._genre_predictions[0][1])
-        if self._voice_instrumental is not None:
-            row["voice_instrumental"] = self._voice_instrumental[0][0]
-        if self._mood is not None:
-            for m, v in self._mood.items():
-                row[f"mood_{m}"] = float(v)
+
+        # ── 1. Pitch & tonality ──
+        if self._key is not None:
+            row["key"] = self._key
+            row["scale"] = self._scale
+            row["key_strength"] = float(self._key_strength)
         if self._pitch_freq is not None:
             voiced = self._pitch_freq[self._pitch_conf > 0.5]
             if len(voiced) > 0:
@@ -589,6 +582,16 @@ class Stimulus:
                 row["pitch_std_hz"] = float(np.std(voiced))
             row["pitch_conf_mean"] = float(np.mean(self._pitch_conf))
             row["pitch_conf_std"] = float(np.std(self._pitch_conf))
+
+        # ── 2. Temporal (rhythm & tempo) ──
+        if self._bpm is not None:
+            row["bpm"] = self._bpm
+        if self._meter is not None:
+            row["meter"] = self._meter
+        if self._beat_times is not None:
+            row["n_beats"] = len(self._beat_times)
+        if self.onset_times is not None:
+            row["n_onsets"] = len(self.onset_times)
         if self._beat_times is not None and len(self._beat_times) >= 2:
             ioi = np.diff(self._beat_times)
             row["beat_ioi_mean"] = float(np.mean(ioi))
@@ -597,11 +600,13 @@ class Stimulus:
             oioi = np.diff(self.onset_times)
             row["onset_ioi_mean"] = float(np.mean(oioi))
             row["onset_ioi_std"] = float(np.std(oioi))
-        if self._key is not None:
-            row["key"] = self._key
-            row["scale"] = self._scale
-            row["key_strength"] = float(self._key_strength)
+        if self.toussaint_syncopation_score is not None:
+            row["syncopation_score"] = self.toussaint_syncopation_score
+        if self.toussaint_syncopation_score_meter is not None:
+            row["syncopation_score_meter"] = self.toussaint_syncopation_score_meter
         row["fluctuation"] = self.fluctuation
+
+        # ── 3. Timbre ──
         row["spectral_irregularity"] = self.irregularity
         if self._spectral_features is not None:
             sf = self._spectral_features
@@ -615,6 +620,20 @@ class Stimulus:
             row["spectral_flatness_std"] = float(np.std(sf["spectral_flatness"]))
             row["zcr_mean"] = float(np.mean(sf["zcr"]))
             row["zcr_std"] = float(np.std(sf["zcr"]))
+
+        # ── 4. Loudness & other ──
+        row["loudness_lufs"] = self.loudness_lufs
+        row["loudness_rms_db"] = self.loudness_rms_db
+        row["rms"] = self.rms
+        if self._genre_predictions is not None:
+            # CSV keeps only the top-1 of genre_top5: label + its confidence
+            row["genre"] = self._genre_predictions[0][0]
+            row["genre_confidence"] = float(self._genre_predictions[0][1])
+        if self._voice_instrumental is not None:
+            row["voice_instrumental"] = self._voice_instrumental[0][0]
+        if self._mood is not None:
+            for m, v in self._mood.items():
+                row[f"mood_{m}"] = float(v)
         return row
 
     def save(self, output_path=None):
@@ -694,6 +713,71 @@ class Stimulus:
         self.classify()
         # Trigger spectral features
         self._compute_spectral_if_needed()
+        print("Processing complete.")
+        self.save(output_path=output_path)
+        if timeseries:
+            self.save_timeseries(output_path=output_path)
+
+    def _partial_process(self, rhythm=False, syncopation=False, genre=False,
+                         pitch=False, key=False, spectral=False):
+        """Compute only the selected feature groups (no saving)."""
+        if rhythm:
+            _ = self.bpm                        # beat detection (BEAT THIS!) only
+        if syncopation:
+            # Needs beats (auto-detected if missing) + separated drums
+            if self.separated_drums is None:
+                self.separate(confirm=False)    # also computes default sync score
+            if self.toussaint_syncopation_score is None:
+                self.syncopation_score()
+            self.syncopation_score(meter=True)
+        if genre:
+            results = _classify_all(self.audio_file_path)
+            self._genre_predictions = results["genre"]
+            self._voice_instrumental = results["voice_instrumental"]
+            self._mood = results["mood"]
+        if pitch:
+            self._pitch_time, self._pitch_freq, self._pitch_conf = \
+                _detect_pitch_crepe(self.audio_file_path)
+        if key:
+            self._key, self._scale, self._key_strength = \
+                _detect_key(self.audio_file_path)
+        if spectral:
+            _ = self.fluctuation
+            _ = self.irregularity
+            self._compute_spectral_if_needed()
+
+    def partial_process_save(self, output_path=None, rhythm=False,
+                             syncopation=False, genre=False, pitch=False,
+                             key=False, spectral=False, timeseries=False):
+        """
+        Like process_and_save, but computes only the selected feature groups.
+
+        Groups
+        ------
+        rhythm      : beats, BPM, meter (BEAT THIS! only — fast)
+        syncopation : Demucs drum separation + both Toussaint syncopation
+                      scores (slow; auto-detects beats first if needed)
+        genre       : Essentia genre / voice-instrumental / mood classifiers
+        pitch       : CREPE pitch tracking
+        key         : key / scale detection
+        spectral    : spectral descriptors (centroid, bandwidth, rolloff,
+                      flatness, ZCR)
+
+        Basics (duration, loudness, RMS, fluctuation, irregularity) are
+        always included in the CSV.
+
+        Example
+        -------
+            stimulus.partial_process_save(rhythm=True, pitch=True)
+        """
+        if not any([rhythm, syncopation, genre, pitch, key, spectral]):
+            print("No feature group selected — saving basics only.\n"
+                  "Available groups: rhythm, syncopation, genre, pitch, key, spectral\n"
+                  "e.g. stimulus.partial_process_save(rhythm=True, pitch=True)")
+        print(f"Processing {self.audio_file_name} (partial)...")
+        self._partial_process(rhythm=rhythm, syncopation=syncopation,
+                              genre=genre, pitch=pitch, key=key,
+                              spectral=spectral)
         print("Processing complete.")
         self.save(output_path=output_path)
         if timeseries:
@@ -848,6 +932,28 @@ class Session:
                 except Exception as e:
                     print(f"  [Skipped syncopation] {s.audio_file_name}: {e}")
 
+    @property
+    def average_fluctuation(self):
+        """
+        Mean fluctuation strength across all songs in this session.
+        First access computes it per song (no ML models involved); cached after.
+        Returns NaN for an empty session.
+        """
+        if not self.items:
+            return float("nan")
+        return float(np.mean([s.fluctuation for s in self.items]))
+
+    @property
+    def average_irregularity(self):
+        """
+        Mean spectral irregularity across all songs in this session.
+        First access computes it per song (no ML models involved); cached after.
+        Returns NaN for an empty session.
+        """
+        if not self.items:
+            return float("nan")
+        return float(np.mean([s.irregularity for s in self.items]))
+
     def save(self, output_path=None):
         """
         Save currently-calculated attributes of every item to a CSV file.
@@ -902,6 +1008,28 @@ class Session:
             if timeseries:
                 for s in self.items:
                     s.save_timeseries(output_path=output_path)
+
+    def partial_process_save(self, output_path=None, rhythm=False,
+                             syncopation=False, genre=False, pitch=False,
+                             key=False, spectral=False, timeseries=False):
+        """
+        Compute only the selected feature groups for every song, then save
+        one CSV. See Stimulus.partial_process_save for group definitions.
+        """
+        if not any([rhythm, syncopation, genre, pitch, key, spectral]):
+            print("No feature group selected — saving basics only.\n"
+                  "Available groups: rhythm, syncopation, genre, pitch, key, spectral")
+        print(f"Processing {len(self.items)} items (partial)...")
+        for s in self.items:
+            print(f"  {s.audio_file_name}")
+            s._partial_process(rhythm=rhythm, syncopation=syncopation,
+                               genre=genre, pitch=pitch, key=key,
+                               spectral=spectral)
+        print("Processing complete.")
+        self.save(output_path=output_path)
+        if timeseries:
+            for s in self.items:
+                s.save_timeseries(output_path=output_path)
 
     def __len__(self):
         return len(self.items)
@@ -1007,6 +1135,26 @@ class Participant:
         self.n_sessions = len(self.sessions)
         print(f"Loaded {self.n_sessions} sessions.")
 
+    @property
+    def average_fluctuation(self):
+        """
+        Mean fluctuation strength across every song in every session.
+        First access computes it per song (no ML models); cached after.
+        Returns NaN if the participant has no songs.
+        """
+        vals = [s.fluctuation for sess in self.sessions for s in sess.items]
+        return float(np.mean(vals)) if vals else float("nan")
+
+    @property
+    def average_irregularity(self):
+        """
+        Mean spectral irregularity across every song in every session.
+        First access computes it per song (no ML models); cached after.
+        Returns NaN if the participant has no songs.
+        """
+        vals = [s.irregularity for sess in self.sessions for s in sess.items]
+        return float(np.mean(vals)) if vals else float("nan")
+
     def save(self, output_path=None):
         """
         Save current attributes of every song in every session to a single CSV.
@@ -1087,6 +1235,34 @@ class Participant:
                     for s in session.items:
                         s.save_timeseries(output_path=output_path)
             return result
+
+    def partial_process_save(self, output_path=None, rhythm=False,
+                             syncopation=False, genre=False, pitch=False,
+                             key=False, spectral=False, timeseries=False):
+        """
+        Compute only the selected feature groups for every song in every
+        session, then save one CSV with a `session` column.
+        See Stimulus.partial_process_save for group definitions.
+        """
+        if not any([rhythm, syncopation, genre, pitch, key, spectral]):
+            print("No feature group selected — saving basics only.\n"
+                  "Available groups: rhythm, syncopation, genre, pitch, key, spectral")
+        print(f"Processing {self.n_sessions} sessions (partial)...")
+        for i, session in enumerate(self.sessions):
+            session_name = os.path.basename(session.folder_path)
+            print(f"\n── Session {i+1}/{self.n_sessions}: {session_name} ──")
+            for s in session.items:
+                print(f"  {s.audio_file_name}")
+                s._partial_process(rhythm=rhythm, syncopation=syncopation,
+                                   genre=genre, pitch=pitch, key=key,
+                                   spectral=spectral)
+        print("\nProcessing complete.")
+        result = self.save(output_path=output_path)
+        if timeseries:
+            for session in self.sessions:
+                for s in session.items:
+                    s.save_timeseries(output_path=output_path)
+        return result
 
     def __len__(self):
         return self.n_sessions

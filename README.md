@@ -90,7 +90,6 @@ Type the following commands directly into the terminal once `rewardio` is launch
 - **`stimulus.play()`**
   Launch the interactive unified player. You can switch between Waveform, Mel, Log, Linear, and Pitch views. Click **Beats** or **Onsets** to visualize and sonify rhythm markers directly over the audio playback.
 - `stimulus.plot()` — Quick static waveform/spectrogram.
-- `stimuli.plot_radar(metrics=['bpm', 'lufs', 'syncopation_score'])` — Radar chart of metrics across the session.
 - `stimuli.plot_boxplots()` — Boxplots showing metric distributions.
 
 ### Getting Metrics
@@ -113,6 +112,12 @@ Access properties on-the-fly. If a metric hasn't been computed yet, `rewardio` c
   Computes ALL available metrics (beats, syncopation, loudness, genre, mood, key, etc.) for every song in the session and saves them to a CSV file.
 - `participant.process_and_save("output_folder")`
   Does the same, but loops through every session folder, adding a `session` column to the final CSV.
+- `stimulus.partial_process_save(rhythm=True, pitch=True)`
+  Computes only the selected feature groups (`rhythm`, `syncopation`, `genre`, `pitch`, `key`, `spectral`) instead of everything. `rhythm` is beats/BPM only (fast); `syncopation` runs Demucs separation + scoring (slow). Available on `session` and `participant` too.
+
+### Aggregate Metrics
+- `session.average_fluctuation` / `session.average_irregularity` — Mean fluctuation / spectral irregularity across the session's songs.
+- `participant.average_fluctuation` / `participant.average_irregularity` — Same, across every song in every session.
 
 ---
 
@@ -132,3 +137,19 @@ The pitch view mode in `stimulus.play()` runs CREPE pitch detection.
 >>> stimulus.pitch_time
 >>> stimulus.pitch_freq
 ```
+
+---
+
+## 🧪 Running Tests
+
+```bash
+# Fast suite — synthetic audio only, no ML models loaded (~7 s)
+python run_tests.py
+
+# Also run model-based tests (madmom beat detection, Demucs separation
+# if the htdemucs checkpoint is already cached)
+REWARDIO_RUN_SLOW=1 python run_tests.py
+```
+
+Tests that need the Essentia classifier models (`rewardio/models/*.pb`)
+skip automatically while those files are absent and activate once installed.

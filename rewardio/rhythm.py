@@ -309,6 +309,13 @@ def _derive_positions_and_meter(beat_times, downbeat_times):
     if meter not in [2, 3, 4]:
         meter = 4
 
+    # Beats before the first downbeat (pickup/anacrusis) defaulted to 1 above,
+    # which made them look like extra downbeats and corrupted the bar grid.
+    # Back-count from the first downbeat instead: ..., meter-1, meter | 1.
+    pickup = np.where(db_idx < 0)[0]
+    for k, bi in enumerate(pickup[::-1]):
+        positions[bi] = meter - (k % meter)
+
     return positions, meter
 
 

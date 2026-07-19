@@ -41,7 +41,12 @@ def separate(file, target_source="drums", gpu=None):
          Sample rate
     """
     global _MODEL
-    
+
+    # Validate inputs up front — before any audio or model loading
+    SOURCE = ['vocals', 'drums', 'bass', 'other']
+    if target_source not in SOURCE:
+        raise ValueError(f"Unknown target source '{target_source}'. Choose from: {SOURCE}")
+
     # Load audio file (supports WAV, MP3, FLAC, AIFF, OGG, M4A)
     supported_ext = ('.wav', '.mp3', '.flac', '.aiff', '.ogg', '.m4a')
     if file.lower().endswith(supported_ext):
@@ -69,6 +74,14 @@ def separate(file, target_source="drums", gpu=None):
 
     model = _MODEL.to(device)
 
+    # Match the model's expected channel count (htdemucs wants stereo —
+    # mono input would crash its first conv layer)
+    if waveform.shape[0] != model.audio_channels:
+        if waveform.shape[0] == 1:
+            waveform = waveform.repeat(model.audio_channels, 1)
+        else:
+            waveform = waveform.mean(dim=0, keepdim=True).repeat(model.audio_channels, 1)
+
     # Apply separation
     waveform = waveform.unsqueeze(0)
     sources = apply_model(model, waveform, split=True, overlap=0.25, progress=True, device=device)[0]
@@ -76,10 +89,6 @@ def separate(file, target_source="drums", gpu=None):
     # Map sources to names
     sources_dict = dict(zip(model.sources, sources))
 
-    # Divide source and target source
-    SOURCE = ['vocals', 'drums', 'bass', 'other']
-    if target_source not in SOURCE:
-        raise ValueError(f"Unknown target source '{target_source}'. Choose from: {SOURCE}")
     # Everything that isn't the target is accompaniment (exact match, not substring)
     accompaniment = [s for s in SOURCE if s != target_source]
 

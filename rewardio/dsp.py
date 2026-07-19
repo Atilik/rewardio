@@ -29,7 +29,13 @@ def get_loudness(y, sr):
         y_ln = y
 
     meter = pyln.Meter(sr)
-    lufs = meter.integrated_loudness(y_ln)
+    try:
+        lufs = meter.integrated_loudness(y_ln)
+    except ValueError:
+        # Clip shorter than the 400 ms BS.1770 gating block: integrated
+        # loudness is undefined — report NaN instead of crashing.
+        # (RMS below works for any length.)
+        lufs = float("nan")
 
     # RMS in dBFS
     rms = np.sqrt(np.mean(y.astype(np.float64) ** 2))
