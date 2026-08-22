@@ -4,20 +4,30 @@ channels:
   - conda-forge
   - defaults
 dependencies:
+  # ── Compiled / system stack (conda) ──
   - python=3.9
-  - ipykernel
-  - numpy=1.26
-  - librosa
-  - matplotlib
-  - scipy
-  - ffmpeg
+  - numpy=1.26          # madmom needs numpy<2; do not bump
+  - scipy=1.13
+  - matplotlib=3.9
+  - ffmpeg              # mp3/m4a decoding
   - libsndfile
-  - cython
-  - mir_eval
-  - pytorch
-  - torchaudio
+  - cython              # required to build madmom from source
+  - pytorch=2.2
+  - torchaudio=2.2
+  - ipykernel
+  - pip
+  # ── Python packages (pip, pinned to a verified working set) ──
   - pip:
-    - sounddevice
-    - pyloudnorm
-    - demucs
-    - essentia-tensorflow
+      - librosa==0.11.0
+      - soundfile==0.13.1
+      - sounddevice==0.5.5
+      - pyloudnorm==0.2.0
+      - mir_eval==0.8.2
+      - demucs==4.0.1
+      - essentia-tensorflow==2.1b6.dev1389
+      - pytest==8.4.2
+      # madmom: PyPI release (0.16.1) is incompatible with numpy>=1.24 —
+      # must install the dev version from GitHub (0.17.dev0)
+      - madmom @ git+https://github.com/CPJKU/madmom
+      # BEAT THIS! beat tracker (ISMIR 2024) — not on PyPI
+      - beat_this @ git+https://github.com/CPJKU/beat_this
