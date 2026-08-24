@@ -15,3 +15,6 @@ downloaded_session_music/
 
 # Analysis output
 rewardio/Analysis_*/
+
+# Downloaded Essentia models (fetch with: python download_models.py)
+rewardio/models/

@@ -16,21 +16,39 @@ A simple, interactive command-line Python tool for music information retrieval (
 
 ## 🛠️ How to Setup Rewardio
 
+Requirements: [conda](https://docs.conda.io/en/latest/miniconda.html), git, and
+(macOS only) the Xcode command-line tools — install with `xcode-select --install` —
+because one dependency (madmom) is compiled from source.
+
 ```bash
 # 1. Clone the repo
 git clone git@github.com:Atilik/rewardio.git
 cd rewardio
 
-# 2. Create the conda environment (installs everything)
+# 2. Create the conda environment (installs everything; takes a few minutes)
 conda env create -f environment.yml
 
 # 3. Activate it
 conda activate rewardio
 
-# 4. Run rewardio
+# 4. Download the classifier models (~45 MB — enables genre/mood/pitch features)
+python download_models.py
+
+# 5. Verify the install — should end with "154 passed" and no failures
+python run_tests.py
+
+# 6. Run rewardio
 cd rewardio
 python rewardio.py /path/to/audio/
 ```
+
+**Notes**
+- Step 4 is optional: without the models everything works except genre, mood,
+  voice/instrumental, and CREPE pitch (the test suite then reports a few skips
+  instead of failures). Re-running the script is safe — it skips existing files.
+- On first analysis run, the beat tracker (BEAT THIS!) and Demucs download
+  their own checkpoints automatically (~100 MB, one time) — so the first song
+  takes longer and needs an internet connection.
 
 ---
 
@@ -143,13 +161,14 @@ The pitch view mode in `stimulus.play()` runs CREPE pitch detection.
 ## 🧪 Running Tests
 
 ```bash
-# Fast suite — synthetic audio only, no ML models loaded (~7 s)
+# Fast suite — synthetic audio only (~15 s with classifier models installed)
 python run_tests.py
 
-# Also run model-based tests (madmom beat detection, Demucs separation
+# Also run the slow model tests (madmom beat detection, Demucs separation
 # if the htdemucs checkpoint is already cached)
 REWARDIO_RUN_SLOW=1 python run_tests.py
 ```
 
 Tests that need the Essentia classifier models (`rewardio/models/*.pb`)
-skip automatically while those files are absent and activate once installed.
+skip automatically while those files are absent — run `python download_models.py`
+to activate them.

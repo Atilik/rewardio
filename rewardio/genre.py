@@ -129,7 +129,14 @@ def _get_embeddings(audio_file_path):
     """Compute Discogs-EffNet embeddings for an audio file."""
     audio = _load_audio_16k(audio_file_path)
     model = _get_embedding_model()
-    return model(audio)
+    embeddings = model(audio)
+    if len(embeddings) == 0:
+        # EffNet needs one full mel patch (128 frames ≈ 2.1 s at 16 kHz);
+        # shorter audio silently yields zero patches -> cryptic errors later.
+        raise ValueError(
+            f"Audio too short for classification (needs ≥ ~2.1 s): {audio_file_path}"
+        )
+    return embeddings
 
 
 def _classify(name, audio_file_path, top_n=5, embeddings=None):
